@@ -20,19 +20,19 @@ import java.util.List;
 
 public abstract class JavaElement {
 
-    private List<String> javaDocLines = new ArrayList<>();
+    private final List<String> javaDocLines = new ArrayList<>();
 
     private JavaVisibility visibility = JavaVisibility.DEFAULT;
 
     private boolean isStatic;
 
-    private List<String> annotations = new ArrayList<>();
+    private final List<String> annotations = new ArrayList<>();
 
-    public JavaElement() {
+    protected JavaElement() {
         super();
     }
 
-    public JavaElement(JavaElement original) {
+    protected JavaElement(JavaElement original) {
         this.annotations.addAll(original.annotations);
         this.isStatic = original.isStatic;
         this.javaDocLines.addAll(original.javaDocLines);

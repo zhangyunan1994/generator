@@ -43,9 +43,9 @@ import org.xml.sax.SAXParseException;
 
 public class ConfigurationParser {
 
-    private List<String> warnings;
-    private List<String> parseErrors;
-    private Properties extraProperties;
+    private final List<String> warnings;
+    private final List<String> parseErrors;
+    private final Properties extraProperties;
 
     public ConfigurationParser(List<String> warnings) {
         this(null, warnings);
@@ -112,6 +112,8 @@ public class ConfigurationParser {
             throws IOException, XMLParserException {
         parseErrors.clear();
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+        factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
         factory.setValidating(true);
 
         try {

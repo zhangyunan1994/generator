@@ -19,12 +19,12 @@ import java.util.Objects;
 
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
-import org.mybatis.generator.runtime.dynamic.sql.elements.v2.Utils;
+import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
 public class DeleteByPrimaryKeyMethodGenerator extends AbstractKotlinFunctionGenerator {
 
-    private KotlinFragmentGenerator fragmentGenerator;
-    private String mapperName;
+    private final KotlinFragmentGenerator fragmentGenerator;
+    private final String mapperName;
 
     private DeleteByPrimaryKeyMethodGenerator(Builder builder) {
         super(builder);
@@ -59,7 +59,7 @@ public class DeleteByPrimaryKeyMethodGenerator extends AbstractKotlinFunctionGen
                 introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, DeleteByPrimaryKeyMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
 
         private KotlinFragmentGenerator fragmentGenerator;
         private String mapperName;
@@ -79,7 +79,6 @@ public class DeleteByPrimaryKeyMethodGenerator extends AbstractKotlinFunctionGen
             return this;
         }
 
-        @Override
         public DeleteByPrimaryKeyMethodGenerator build() {
             return new DeleteByPrimaryKeyMethodGenerator(this);
         }

@@ -17,11 +17,11 @@ package org.mybatis.generator.runtime.kotlin.elements;
 
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
-import org.mybatis.generator.runtime.dynamic.sql.elements.v2.Utils;
+import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
 public class SelectByPrimaryKeyMethodGenerator extends AbstractKotlinFunctionGenerator {
-    private String mapperName;
-    private KotlinFragmentGenerator fragmentGenerator;
+    private final String mapperName;
+    private final KotlinFragmentGenerator fragmentGenerator;
 
     private SelectByPrimaryKeyMethodGenerator(Builder builder) {
         super(builder);
@@ -56,7 +56,7 @@ public class SelectByPrimaryKeyMethodGenerator extends AbstractKotlinFunctionGen
                 introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, SelectByPrimaryKeyMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
         private String mapperName;
         private KotlinFragmentGenerator fragmentGenerator;
 
@@ -75,7 +75,6 @@ public class SelectByPrimaryKeyMethodGenerator extends AbstractKotlinFunctionGen
             return this;
         }
 
-        @Override
         public SelectByPrimaryKeyMethodGenerator build() {
             return new SelectByPrimaryKeyMethodGenerator(this);
         }

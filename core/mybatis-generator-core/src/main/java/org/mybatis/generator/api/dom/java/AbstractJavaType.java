@@ -22,25 +22,25 @@ import java.util.Set;
 
 public abstract class AbstractJavaType extends JavaElement {
 
-    private FullyQualifiedJavaType type;
+    private final FullyQualifiedJavaType type;
 
-    private Set<FullyQualifiedJavaType> superInterfaceTypes = new LinkedHashSet<>();
+    private final Set<FullyQualifiedJavaType> superInterfaceTypes = new LinkedHashSet<>();
 
-    private List<InnerClass> innerClasses = new ArrayList<>();
+    private final List<InnerClass> innerClasses = new ArrayList<>();
 
-    private List<InnerEnum> innerEnums = new ArrayList<>();
+    private final List<InnerEnum> innerEnums = new ArrayList<>();
 
-    private List<InnerInterface> innerInterfaces = new ArrayList<>();
+    private final List<InnerInterface> innerInterfaces = new ArrayList<>();
 
-    private List<Field> fields = new ArrayList<>();
+    private final List<Field> fields = new ArrayList<>();
 
-    private List<Method> methods = new ArrayList<>();
+    private final List<Method> methods = new ArrayList<>();
 
-    public AbstractJavaType(FullyQualifiedJavaType type) {
+    protected AbstractJavaType(FullyQualifiedJavaType type) {
         this.type = type;
     }
 
-    public AbstractJavaType(String type) {
+    protected AbstractJavaType(String type) {
         this.type = new FullyQualifiedJavaType(type);
     }
 

@@ -25,9 +25,9 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 import org.mybatis.generator.codegen.mybatis3.ListUtilities;
 
 public class InsertSelectiveMethodGenerator extends AbstractKotlinFunctionGenerator {
-    private FullyQualifiedKotlinType recordType;
-    private String mapperName;
-    private String tableFieldImport;
+    private final FullyQualifiedKotlinType recordType;
+    private final String mapperName;
+    private final String tableFieldImport;
 
     private InsertSelectiveMethodGenerator(Builder builder) {
         super(builder);
@@ -83,7 +83,7 @@ public class InsertSelectiveMethodGenerator extends AbstractKotlinFunctionGenera
         return context.getPlugins().clientInsertSelectiveMethodGenerated(kotlinFunction, kotlinFile, introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, InsertSelectiveMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
         private FullyQualifiedKotlinType recordType;
         private String mapperName;
         private String tableFieldImport;
@@ -108,7 +108,6 @@ public class InsertSelectiveMethodGenerator extends AbstractKotlinFunctionGenera
             return this;
         }
 
-        @Override
         public InsertSelectiveMethodGenerator build() {
             return new InsertSelectiveMethodGenerator(this);
         }

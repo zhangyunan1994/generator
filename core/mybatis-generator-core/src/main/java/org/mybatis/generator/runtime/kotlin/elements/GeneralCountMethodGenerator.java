@@ -23,11 +23,13 @@ import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 
 public class GeneralCountMethodGenerator extends AbstractKotlinFunctionGenerator {
 
-    private String mapperName;
+    private final String mapperName;
+    private final String tableFieldImport;
 
     private GeneralCountMethodGenerator(Builder builder) {
         super(builder);
         mapperName = Objects.requireNonNull(builder.mapperName);
+        tableFieldImport = Objects.requireNonNull(builder.tableFieldImport);
     }
 
     @Override
@@ -53,8 +55,14 @@ public class GeneralCountMethodGenerator extends AbstractKotlinFunctionGenerator
         return context.getPlugins().clientGeneralCountMethodGenerated(kotlinFunction, kotlinFile, introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, GeneralCountMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
         private String mapperName;
+        private String tableFieldImport;
+
+        public Builder withTableFieldImport(String tableFieldImport) {
+            this.tableFieldImport = tableFieldImport;
+            return this;
+        }
 
         public Builder withMapperName(String mapperName) {
             this.mapperName = mapperName;
@@ -66,7 +74,6 @@ public class GeneralCountMethodGenerator extends AbstractKotlinFunctionGenerator
             return this;
         }
 
-        @Override
         public GeneralCountMethodGenerator build() {
             return new GeneralCountMethodGenerator(this);
         }

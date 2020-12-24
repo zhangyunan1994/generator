@@ -20,11 +20,11 @@ import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
 import org.mybatis.generator.config.GeneratedKey;
-import org.mybatis.generator.runtime.dynamic.sql.elements.v2.Utils;
+import org.mybatis.generator.runtime.dynamic.sql.elements.Utils;
 
 public class BasicMultipleInsertMethodGenerator extends AbstractKotlinFunctionGenerator {
 
-    private FullyQualifiedKotlinType recordType;
+    private final FullyQualifiedKotlinType recordType;
 
     private BasicMultipleInsertMethodGenerator(Builder builder) {
         super(builder);
@@ -126,7 +126,7 @@ public class BasicMultipleInsertMethodGenerator extends AbstractKotlinFunctionGe
                 introspectedTable);
     }
 
-    public static class Builder extends BaseBuilder<Builder, BasicMultipleInsertMethodGenerator> {
+    public static class Builder extends BaseBuilder<Builder> {
 
         private FullyQualifiedKotlinType recordType;
 
@@ -140,7 +140,6 @@ public class BasicMultipleInsertMethodGenerator extends AbstractKotlinFunctionGe
             return this;
         }
 
-        @Override
         public BasicMultipleInsertMethodGenerator build() {
             return new BasicMultipleInsertMethodGenerator(this);
         }

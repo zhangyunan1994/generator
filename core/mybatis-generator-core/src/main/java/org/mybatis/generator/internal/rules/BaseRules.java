@@ -32,13 +32,13 @@ import org.mybatis.generator.internal.util.StringUtility;
  */
 public abstract class BaseRules implements Rules {
 
-    protected TableConfiguration tableConfiguration;
+    protected final TableConfiguration tableConfiguration;
 
-    protected IntrospectedTable introspectedTable;
+    protected final IntrospectedTable introspectedTable;
 
     protected final boolean isModelOnly;
 
-    public BaseRules(IntrospectedTable introspectedTable) {
+    protected BaseRules(IntrospectedTable introspectedTable) {
         super();
         this.introspectedTable = introspectedTable;
         this.tableConfiguration = introspectedTable.getTableConfiguration();
