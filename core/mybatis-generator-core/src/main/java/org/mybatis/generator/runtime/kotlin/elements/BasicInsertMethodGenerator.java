@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,19 +19,16 @@ import org.mybatis.generator.api.dom.kotlin.FullyQualifiedKotlinType;
 import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
 import org.mybatis.generator.api.dom.kotlin.KotlinFunction;
-import org.mybatis.generator.config.GeneratedKey;
 
 public class BasicInsertMethodGenerator extends AbstractKotlinFunctionGenerator {
 
     private final FullyQualifiedKotlinType recordType;
     private final KotlinFragmentGenerator fragmentGenerator;
-    private final KotlinFile kotlinFile;
 
     private BasicInsertMethodGenerator(Builder builder) {
         super(builder);
         recordType = builder.recordType;
         fragmentGenerator = builder.fragmentGenerator;
-        kotlinFile = builder.kotlinFile;
     }
 
     @Override
@@ -40,29 +37,29 @@ public class BasicInsertMethodGenerator extends AbstractKotlinFunctionGenerator 
                 + recordType.getShortNameWithTypeArguments()
                 + ">"; //$NON-NLS-1$
 
-        KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
-                KotlinFunction.newOneLineFunction("insert") //$NON-NLS-1$
+        KotlinFunction function = KotlinFunction.newOneLineFunction("insert") //$NON-NLS-1$
                 .withExplicitReturnType("Int") //$NON-NLS-1$
                 .withArgument(KotlinArg.newArg("insertStatement") //$NON-NLS-1$
                         .withDataType(parameterType)
                         .build())
                 .withAnnotation("@InsertProvider(type=SqlProviderAdapter::class, method=\"insert\")") //$NON-NLS-1$
-                .build())
+                .build();
+
+        KotlinFunctionAndImports.Builder functionAndImportsBuilder = KotlinFunctionAndImports.withFunction(function)
                 .withImport("org.mybatis.dynamic.sql.util.SqlProviderAdapter") //$NON-NLS-1$
                 .withImport("org.apache.ibatis.annotations.InsertProvider") //$NON-NLS-1$
                 .withImport("org.mybatis.dynamic.sql.insert.render.InsertStatementProvider") //$NON-NLS-1$
-                .withImports(recordType.getImportList())
-                .build();
+                .withImports(recordType.getImportList());
 
-
-        addFunctionComment(functionAndImports);
-
-        GeneratedKey gk = introspectedTable.getGeneratedKey();
-        if (gk != null) {
+        introspectedTable.getGeneratedKey().ifPresent(gk -> {
             KotlinFunctionParts functionParts = fragmentGenerator.getGeneratedKeyAnnotation(gk);
-            acceptParts(kotlinFile, functionAndImports.getFunction(), functionParts);
-        }
+            // need to add imports to function and imports
+            acceptParts(function, functionParts);
+            functionAndImportsBuilder.withImports(functionParts.getImports());
+        });
 
+        KotlinFunctionAndImports functionAndImports = functionAndImportsBuilder.build();
+        addFunctionComment(functionAndImports);
         return functionAndImports;
     }
 
@@ -75,7 +72,6 @@ public class BasicInsertMethodGenerator extends AbstractKotlinFunctionGenerator 
 
         private FullyQualifiedKotlinType recordType;
         private KotlinFragmentGenerator fragmentGenerator;
-        private KotlinFile kotlinFile;
 
         public Builder withRecordType(FullyQualifiedKotlinType recordType) {
             this.recordType = recordType;
@@ -84,11 +80,6 @@ public class BasicInsertMethodGenerator extends AbstractKotlinFunctionGenerator 
 
         public Builder withFragmentGenerator(KotlinFragmentGenerator fragmentGenerator) {
             this.fragmentGenerator = fragmentGenerator;
-            return this;
-        }
-
-        public Builder withKotlinFile(KotlinFile kotlinFile) {
-            this.kotlinFile = kotlinFile;
             return this;
         }
 

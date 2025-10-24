@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,12 +20,9 @@ import java.util.TreeSet;
 
 import org.mybatis.generator.api.dom.java.FullyQualifiedJavaType;
 import org.mybatis.generator.api.dom.java.Interface;
-import org.mybatis.generator.api.dom.java.JavaVisibility;
 import org.mybatis.generator.api.dom.java.Method;
-import org.mybatis.generator.api.dom.java.Parameter;
 
-public class UpdateByPrimaryKeySelectiveMethodGenerator extends
-        AbstractJavaMapperMethodGenerator {
+public class UpdateByPrimaryKeySelectiveMethodGenerator extends AbstractJavaMapperMethodGenerator {
 
     public UpdateByPrimaryKeySelectiveMethodGenerator() {
         super();
@@ -35,32 +32,20 @@ public class UpdateByPrimaryKeySelectiveMethodGenerator extends
     public void addInterfaceElements(Interface interfaze) {
         Set<FullyQualifiedJavaType> importedTypes = new TreeSet<>();
         FullyQualifiedJavaType parameterType;
-
         if (introspectedTable.getRules().generateRecordWithBLOBsClass()) {
-            parameterType = new FullyQualifiedJavaType(introspectedTable
-                    .getRecordWithBLOBsType());
+            parameterType = new FullyQualifiedJavaType(introspectedTable.getRecordWithBLOBsType());
         } else {
-            parameterType = new FullyQualifiedJavaType(introspectedTable
-                    .getBaseRecordType());
+            parameterType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
         }
-
+        String statementId = introspectedTable.getUpdateByPrimaryKeySelectiveStatementId();
         importedTypes.add(parameterType);
 
-        Method method = new Method(introspectedTable
-                .getUpdateByPrimaryKeySelectiveStatementId());
-        method.setVisibility(JavaVisibility.PUBLIC);
-        method.setAbstract(true);
-        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        method.addParameter(new Parameter(parameterType, "record")); //$NON-NLS-1$
-
-        context.getCommentGenerator().addGeneralMethodComment(method,
-                introspectedTable);
+        Method method = buildBasicUpdateByPrimaryKeyMethod(statementId, parameterType);
 
         addMapperAnnotations(method);
 
         if (context.getPlugins()
-                .clientUpdateByPrimaryKeySelectiveMethodGenerated(method,
-                        interfaze, introspectedTable)) {
+                .clientUpdateByPrimaryKeySelectiveMethodGenerated(method, interfaze, introspectedTable)) {
             addExtraImports(interfaze);
             interfaze.addImportedTypes(importedTypes);
             interfaze.addMethod(method);

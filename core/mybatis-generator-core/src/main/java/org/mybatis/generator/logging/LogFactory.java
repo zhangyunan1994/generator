@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import org.mybatis.generator.logging.commons.JakartaCommonsLoggingLogFactory;
 import org.mybatis.generator.logging.jdk14.Jdk14LoggingLogFactory;
-import org.mybatis.generator.logging.log4j.Log4jLoggingLogFactory;
 import org.mybatis.generator.logging.log4j2.Log4j2LoggingLogFactory;
 import org.mybatis.generator.logging.nologging.NoLoggingLogFactory;
 import org.mybatis.generator.logging.slf4j.Slf4jLoggingLogFactory;
@@ -28,7 +27,6 @@ import org.mybatis.generator.logging.slf4j.Slf4jLoggingLogFactory;
  * Factory for creating loggers.
  *
  * @author Jeff Butler
- *
  */
 public class LogFactory {
     private static AbstractLogFactory theFactory;
@@ -38,12 +36,12 @@ public class LogFactory {
         tryImplementation(new Slf4jLoggingLogFactory());
         tryImplementation(new JakartaCommonsLoggingLogFactory());
         tryImplementation(new Log4j2LoggingLogFactory());
-        tryImplementation(new Log4jLoggingLogFactory());
         tryImplementation(new Jdk14LoggingLogFactory());
         tryImplementation(new NoLoggingLogFactory());
     }
 
-    private LogFactory() {}
+    private LogFactory() {
+    }
 
     public static Log getLog(Class<?> clazz) {
         try {
@@ -72,10 +70,6 @@ public class LogFactory {
 
     public static synchronized void forceCommonsLogging() {
         setImplementation(new JakartaCommonsLoggingLogFactory());
-    }
-
-    public static synchronized void forceLog4jLogging() {
-        setImplementation(new Log4jLoggingLogFactory());
     }
 
     public static synchronized void forceLog4j2Logging() {

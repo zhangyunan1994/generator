@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@ package org.mybatis.generator.api.dom.kotlin.render;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.mybatis.generator.api.dom.java.render.RenderingUtilities;
 import org.mybatis.generator.api.dom.kotlin.KotlinNamedItem;
@@ -33,10 +32,19 @@ public class KotlinTypeRenderer {
 
         List<String> answer = new ArrayList<>(kotlinType.getAnnotations());
 
-        String renderedModifiersAndName = KotlinRenderingUtilities.renderModifiers(kotlinType.getModifiers())
-                + kotlinType.getType().getValue() + " " //$NON-NLS-1$
-                + kotlinType.getName();
+        String renderedModifiers = KotlinRenderingUtilities.renderModifiers(kotlinType.getModifiers())
+                + kotlinType.getType().getValue(); //$NON-NLS-1$
+
+        String renderedModifiersAndName;
+        if (kotlinType.getType() == KotlinType.Type.COMPANION_OBJECT
+                && kotlinType.getName().equals(KotlinType.DEFAULT_COMPANION_OBJECT_NAME)) {
+            renderedModifiersAndName = renderedModifiers;
+        } else {
+            renderedModifiersAndName = renderedModifiers + " " + kotlinType.getName(); //$NON-NLS-1$
+        }
+
         String renderedSuperTypes = kotlinType.getSuperTypes().stream()
+                .sorted()
                 .collect(CustomCollectors.joining(", ", " : ", "")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
         if (kotlinType.getNamedItems().isEmpty()) {
@@ -59,7 +67,7 @@ public class KotlinTypeRenderer {
 
         for (KotlinNamedItem namedItem : kotlinType.getNamedItems()) {
             answer.addAll(renderer.render(namedItem).stream().map(KotlinRenderingUtilities::kotlinIndent)
-                    .collect(Collectors.toList()));
+                    .toList());
             answer.add(""); //$NON-NLS-1$
         }
 
@@ -79,7 +87,7 @@ public class KotlinTypeRenderer {
         Iterator<KotlinProperty> iter = kotlinType.getConstructorProperties().iterator();
         while (iter.hasNext()) {
             lines.addAll(renderer.render(iter.next()).stream().map(KotlinRenderingUtilities::kotlinIndent)
-                    .collect(Collectors.toList()));
+                    .toList());
             if (iter.hasNext()) {
                 lines.set(lines.size() - 1,
                         lines.get(lines.size() - 1) + ","); //$NON-NLS-1$

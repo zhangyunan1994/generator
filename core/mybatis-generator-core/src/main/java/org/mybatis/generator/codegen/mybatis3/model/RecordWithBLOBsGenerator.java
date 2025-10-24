@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,17 +45,13 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
     @Override
     public List<CompilationUnit> getCompilationUnits() {
         FullyQualifiedTable table = introspectedTable.getFullyQualifiedTable();
-        progressCallback.startTask(getString(
-                "Progress.9", table.toString())); //$NON-NLS-1$
-        Plugin plugins = context.getPlugins();
+        progressCallback.startTask(getString("Progress.9", table.toString())); //$NON-NLS-1$
         CommentGenerator commentGenerator = context.getCommentGenerator();
 
-        TopLevelClass topLevelClass = new TopLevelClass(introspectedTable
-                .getRecordWithBLOBsType());
+        TopLevelClass topLevelClass = new TopLevelClass(introspectedTable.getRecordWithBLOBsType());
         topLevelClass.setVisibility(JavaVisibility.PUBLIC);
         commentGenerator.addJavaFileComment(topLevelClass);
 
-        String rootClass = getRootClass();
         if (introspectedTable.getRules().generateBaseRecordClass()) {
             topLevelClass.setSuperClass(introspectedTable.getBaseRecordType());
         } else {
@@ -71,32 +67,29 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
             }
         }
 
-        for (IntrospectedColumn introspectedColumn : introspectedTable
-                .getBLOBColumns()) {
-            if (RootClassInfo.getInstance(rootClass, warnings)
-                    .containsProperty(introspectedColumn)) {
+        String rootClass = getRootClass();
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getBLOBColumns()) {
+            if (RootClassInfo.getInstance(rootClass, warnings).containsProperty(introspectedColumn)) {
                 continue;
             }
 
+            Plugin plugins = context.getPlugins();
             Field field = getJavaBeansField(introspectedColumn, context, introspectedTable);
-            if (plugins.modelFieldGenerated(field, topLevelClass,
-                    introspectedColumn, introspectedTable,
+            if (plugins.modelFieldGenerated(field, topLevelClass, introspectedColumn, introspectedTable,
                     Plugin.ModelClassType.RECORD_WITH_BLOBS)) {
                 topLevelClass.addField(field);
                 topLevelClass.addImportedType(field.getType());
             }
 
             Method method = getJavaBeansGetter(introspectedColumn, context, introspectedTable);
-            if (plugins.modelGetterMethodGenerated(method, topLevelClass,
-                    introspectedColumn, introspectedTable,
+            if (plugins.modelGetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable,
                     Plugin.ModelClassType.RECORD_WITH_BLOBS)) {
                 topLevelClass.addMethod(method);
             }
 
             if (!introspectedTable.isImmutable()) {
                 method = getJavaBeansSetter(introspectedColumn, context, introspectedTable);
-                if (plugins.modelSetterMethodGenerated(method, topLevelClass,
-                        introspectedColumn, introspectedTable,
+                if (plugins.modelSetterMethodGenerated(method, topLevelClass, introspectedColumn, introspectedTable,
                         Plugin.ModelClassType.RECORD_WITH_BLOBS)) {
                     topLevelClass.addMethod(method);
                 }
@@ -104,8 +97,7 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
         }
 
         List<CompilationUnit> answer = new ArrayList<>();
-        if (context.getPlugins().modelRecordWithBLOBsClassGenerated(
-                topLevelClass, introspectedTable)) {
+        if (context.getPlugins().modelRecordWithBLOBsClassGenerated(topLevelClass, introspectedTable)) {
             answer.add(topLevelClass);
         }
         return answer;
@@ -117,8 +109,7 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
         method.setConstructor(true);
         context.getCommentGenerator().addGeneralMethodComment(method, introspectedTable);
 
-        for (IntrospectedColumn introspectedColumn : introspectedTable
-                .getAllColumns()) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getAllColumns()) {
             method.addParameter(new Parameter(introspectedColumn.getFullyQualifiedJavaType(),
                     introspectedColumn.getJavaProperty()));
             topLevelClass.addImportedType(introspectedColumn.getFullyQualifiedJavaType());
@@ -127,8 +118,7 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
         boolean comma = false;
         StringBuilder sb = new StringBuilder();
         sb.append("super("); //$NON-NLS-1$
-        for (IntrospectedColumn introspectedColumn : introspectedTable
-                .getNonBLOBColumns()) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getNonBLOBColumns()) {
             if (comma) {
                 sb.append(", "); //$NON-NLS-1$
             } else {
@@ -139,8 +129,7 @@ public class RecordWithBLOBsGenerator extends AbstractJavaGenerator {
         sb.append(");"); //$NON-NLS-1$
         method.addBodyLine(sb.toString());
 
-        for (IntrospectedColumn introspectedColumn : introspectedTable
-                .getBLOBColumns()) {
+        for (IntrospectedColumn introspectedColumn : introspectedTable.getBLOBColumns()) {
             sb.setLength(0);
             sb.append("this."); //$NON-NLS-1$
             sb.append(introspectedColumn.getJavaProperty());

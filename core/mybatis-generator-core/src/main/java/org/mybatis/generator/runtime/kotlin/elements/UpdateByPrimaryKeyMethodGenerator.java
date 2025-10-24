@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -44,7 +44,7 @@ public class UpdateByPrimaryKeyMethodGenerator extends AbstractKotlinFunctionGen
 
         KotlinFunctionAndImports functionAndImports = KotlinFunctionAndImports.withFunction(
                 KotlinFunction.newOneLineFunction(mapperName + ".updateByPrimaryKey") //$NON-NLS-1$
-                .withArgument(KotlinArg.newArg("record") //$NON-NLS-1$
+                .withArgument(KotlinArg.newArg("row") //$NON-NLS-1$
                         .withDataType(recordType.getShortNameWithTypeArguments())
                         .build())
                 .withCodeLine("update {") //$NON-NLS-1$
@@ -58,8 +58,9 @@ public class UpdateByPrimaryKeyMethodGenerator extends AbstractKotlinFunctionGen
         KotlinFunctionParts functionParts = fragmentGenerator.getSetEqualLines(columns);
         acceptParts(functionAndImports, functionParts);
 
-        functionParts = fragmentGenerator.getPrimaryKeyWhereClauseForUpdate();
+        functionParts = fragmentGenerator.getPrimaryKeyWhereClauseAndParameters(true);
         acceptParts(functionAndImports, functionParts);
+        functionAndImports.getFunction().getCodeLines().add("}"); //$NON-NLS-1$
 
         return functionAndImports;
     }

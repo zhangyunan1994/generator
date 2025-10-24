@@ -1,28 +1,30 @@
-/**
- *    Copyright 2006-2016 the original author or authors.
+/*
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
  *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
+ *
  */
 package org.mybatis.generator.eclipse.ui.ant.logging;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import org.mybatis.generator.eclipse.ui.ant.logging.commons.JakartaCommonsLoggingLogFactory;
-import org.mybatis.generator.eclipse.ui.ant.logging.log4j.Log4jLoggingLogFactory;
 import org.mybatis.generator.eclipse.ui.ant.logging.log4j2.Log4j2LoggingLogFactory;
 import org.mybatis.generator.eclipse.ui.ant.logging.slf4j.Slf4jLoggingLogFactory;
+import org.mybatis.generator.eclipse.ui.launcher.tabs.LoggingButtonData;
 import org.mybatis.generator.logging.AbstractLogFactory;
 import org.mybatis.generator.logging.Log;
+import org.mybatis.generator.logging.LogException;
 import org.mybatis.generator.logging.jdk14.Jdk14LoggingLogFactory;
 import org.mybatis.generator.logging.nologging.NoLoggingLogFactory;
 
@@ -39,15 +41,13 @@ public class AntLogFactory implements AbstractLogFactory {
         if (loggingImplementation == null || loggingImplementation.length() == 0) {
             calculateDefaultImplementation();
         } else {
-            if ("SLF4J".equals(loggingImplementation)) { //$NON-NLS-1$
+            if (LoggingButtonData.SLF4J.name().equals(loggingImplementation)) {
                 setImplementation(new Slf4jLoggingLogFactory());
-            } else if ("COMMONS_LOGGING".equals(loggingImplementation)) { //$NON-NLS-1$
+            } else if (LoggingButtonData.COMMONS_LOGGING.name().equals(loggingImplementation)) {
                 setImplementation(new JakartaCommonsLoggingLogFactory());
-            } else if ("LOG4J2".equals(loggingImplementation)) { //$NON-NLS-1$
+            } else if (LoggingButtonData.LOG4J2.name().equals(loggingImplementation)) {
                 setImplementation(new Log4j2LoggingLogFactory());
-            } else if ("LOG4J".equals(loggingImplementation)) { //$NON-NLS-1$
-                setImplementation(new Log4jLoggingLogFactory());
-            } else if ("JDK".equals(loggingImplementation)) { //$NON-NLS-1$
+            } else if (LoggingButtonData.JDK.name().equals(loggingImplementation)) {
                 setImplementation(new Jdk14LoggingLogFactory());
             } else {
                 setImplementation(new NoLoggingLogFactory());
@@ -59,7 +59,6 @@ public class AntLogFactory implements AbstractLogFactory {
         tryImplementation(new Slf4jLoggingLogFactory());
         tryImplementation(new JakartaCommonsLoggingLogFactory());
         tryImplementation(new Log4j2LoggingLogFactory());
-        tryImplementation(new Log4jLoggingLogFactory());
         tryImplementation(new Jdk14LoggingLogFactory());
         tryImplementation(new NoLoggingLogFactory());
     }

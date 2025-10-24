@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,11 @@
 package mbg.test.common.util;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -36,23 +36,23 @@ import java.sql.Statement;
  */
 public class SqlScriptRunner {
     private String driver;
-    private String url;
-    private String userid;
+    private final String url;
+    private final String userid;
     private String password;
-    private String sourceFile;
+    private final String sourceFile;
 
     public SqlScriptRunner(String sourceFile, String driver, String url,
             String userId, String password) throws Exception {
 
-        if (sourceFile == null || sourceFile.length() == 0) {
+        if (sourceFile == null || sourceFile.isEmpty()) {
             throw new Exception("SQL script file is required");
         }
 
-        if (driver == null || driver.length() == 0) {
+        if (driver == null || driver.isEmpty()) {
             throw new Exception("JDBC Driver is required");
         }
 
-        if (url == null || url.length() == 0) {
+        if (url == null || url.isEmpty()) {
             throw new Exception("JDBC URL is required");
         }
 
@@ -135,7 +135,7 @@ public class SqlScriptRunner {
                 continue;
             }
 
-            if (line.length() == 0) {
+            if (line.isEmpty()) {
                 continue;
             }
 
@@ -150,7 +150,7 @@ public class SqlScriptRunner {
 
         String s = sb.toString().trim();
 
-        return s.length() > 0 ? s : null;
+        return s.isEmpty() ? null : s;
     }
 
     private BufferedReader getScriptReader() throws Exception {
@@ -165,11 +165,11 @@ public class SqlScriptRunner {
             }
             answer = new BufferedReader(new InputStreamReader(is));
         } else {
-            File file = new File(sourceFile);
-            if (!file.exists()) {
+            Path file = Path.of(sourceFile);
+            if (Files.notExists(file)) {
                 throw new Exception("SQL script file does not exist");
             }
-            answer = new BufferedReader(new FileReader(file));
+            answer = Files.newBufferedReader(file);
         }
 
         return answer;

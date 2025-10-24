@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,10 +15,9 @@
  */
 package org.mybatis.generator;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,13 +34,12 @@ import org.mybatis.generator.internal.DefaultShellCallback;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 class XmlCodeGenerationTest {
 
     @ParameterizedTest
-    @MethodSource("generateXmlFiles")
+    @MethodSource("xmlFileGenerator")
     void testXmlParse(GeneratedXmlFile generatedXmlFile) {
         ByteArrayInputStream is = new ByteArrayInputStream(
                 generatedXmlFile.getFormattedContent().getBytes());
@@ -57,10 +55,8 @@ class XmlCodeGenerationTest {
         }
     }
 
-    static List<GeneratedXmlFile> generateXmlFiles() throws Exception {
-        List<GeneratedXmlFile> generatedFiles = new ArrayList<>();
-        generatedFiles.addAll(generateXmlFilesMybatis());
-        return generatedFiles;
+    static List<GeneratedXmlFile> xmlFileGenerator() throws Exception {
+        return new ArrayList<>(generateXmlFilesMybatis());
     }
 
     static List<GeneratedXmlFile> generateXmlFilesMybatis() throws Exception {
@@ -83,8 +79,8 @@ class XmlCodeGenerationTest {
     static class TestEntityResolver implements EntityResolver {
 
         @Override
-        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-            // just return an empty string.  this should stop the parser from trying to access the network
+        public InputSource resolveEntity(String publicId, String systemId) {
+            // just return an empty string. this should stop the parser from trying to access the network
             return new InputSource(new ByteArrayInputStream("".getBytes()));
         }
     }
@@ -95,17 +91,17 @@ class XmlCodeGenerationTest {
         private final List<String> warnings = new ArrayList<>();
 
         @Override
-        public void warning(SAXParseException exception) throws SAXException {
+        public void warning(SAXParseException exception) {
             warnings.add(exception.getMessage());
         }
 
         @Override
-        public void error(SAXParseException exception) throws SAXException {
+        public void error(SAXParseException exception) {
             errors.add(exception.getMessage());
         }
 
         @Override
-        public void fatalError(SAXParseException exception) throws SAXException {
+        public void fatalError(SAXParseException exception) {
             errors.add(exception.getMessage());
         }
 

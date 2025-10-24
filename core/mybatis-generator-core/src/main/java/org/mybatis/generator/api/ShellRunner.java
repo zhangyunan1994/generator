@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,22 +17,22 @@ package org.mybatis.generator.api;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.mybatis.generator.config.Configuration;
 import org.mybatis.generator.config.xml.ConfigurationParser;
 import org.mybatis.generator.exception.InvalidConfigurationException;
 import org.mybatis.generator.exception.XMLParserException;
 import org.mybatis.generator.internal.DefaultShellCallback;
+import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.logging.LogFactory;
 
 /**
@@ -73,48 +73,28 @@ public class ShellRunner {
         List<String> warnings = new ArrayList<>();
 
         String configfile = arguments.get(CONFIG_FILE);
-        File configurationFile = new File(configfile);
-        if (!configurationFile.exists()) {
+        Path configurationFile = Path.of(configfile);
+        if (Files.notExists(configurationFile)) {
             writeLine(getString("RuntimeError.1", configfile)); //$NON-NLS-1$
             return;
         }
 
-        Set<String> fullyqualifiedTables = new HashSet<>();
-        if (arguments.containsKey(TABLES)) {
-            StringTokenizer st = new StringTokenizer(arguments.get(TABLES), ","); //$NON-NLS-1$
-            while (st.hasMoreTokens()) {
-                String s = st.nextToken().trim();
-                if (s.length() > 0) {
-                    fullyqualifiedTables.add(s);
-                }
-            }
-        }
+        Set<String> fullyQualifiedTables = StringUtility.tokenize(arguments.get(TABLES));
 
-        Set<String> contexts = new HashSet<>();
-        if (arguments.containsKey(CONTEXT_IDS)) {
-            StringTokenizer st = new StringTokenizer(
-                    arguments.get(CONTEXT_IDS), ","); //$NON-NLS-1$
-            while (st.hasMoreTokens()) {
-                String s = st.nextToken().trim();
-                if (s.length() > 0) {
-                    contexts.add(s);
-                }
-            }
-        }
+        Set<String> contexts = StringUtility.tokenize(arguments.get(CONTEXT_IDS));
 
         try {
             ConfigurationParser cp = new ConfigurationParser(warnings);
-            Configuration config = cp.parseConfiguration(configurationFile);
+            Configuration config = cp.parseConfiguration(configurationFile.toFile());
 
-            DefaultShellCallback shellCallback = new DefaultShellCallback(
-                    arguments.containsKey(OVERWRITE));
+            DefaultShellCallback shellCallback = new DefaultShellCallback(arguments.containsKey(OVERWRITE));
 
             MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, shellCallback, warnings);
 
             ProgressCallback progressCallback = arguments.containsKey(VERBOSE) ? new VerboseProgressCallback()
                     : null;
 
-            myBatisGenerator.generate(progressCallback, contexts, fullyqualifiedTables);
+            myBatisGenerator.generate(progressCallback, contexts, fullyQualifiedTables);
 
         } catch (XMLParserException e) {
             writeLine(getString("Progress.3")); //$NON-NLS-1$

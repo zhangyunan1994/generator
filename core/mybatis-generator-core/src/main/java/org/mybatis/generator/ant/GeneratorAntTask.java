@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,8 @@ import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -70,7 +72,7 @@ import org.mybatis.generator.internal.DefaultShellCallback;
  * <li>"verbose" - if true, then the generator will log progress messages to the
  * Ant log. Default is false</li>
  * <li>"contextIds" - a comma delimited list of contaxtIds to use for this run</li>
- * <li>"fullyQualifiedTableNames" - a comma delimited list of fully qualified
+ * <li>"fullyQualifiedTableNames" - a comma-delimited list of fully qualified
  * table names to use for this run</li>
  * </ul>
  *
@@ -137,7 +139,7 @@ public class GeneratorAntTask extends Task {
             StringTokenizer st = new StringTokenizer(contextIds, ","); //$NON-NLS-1$
             while (st.hasMoreTokens()) {
                 String s = st.nextToken().trim();
-                if (s.length() > 0) {
+                if (!s.isEmpty()) {
                     contexts.add(s);
                 }
             }
@@ -152,7 +154,7 @@ public class GeneratorAntTask extends Task {
                     ","); //$NON-NLS-1$
             while (st.hasMoreTokens()) {
                 String s = st.nextToken().trim();
-                if (s.length() > 0) {
+                if (!s.isEmpty()) {
                     fullyqualifiedTables.add(s);
                 }
             }
@@ -166,12 +168,12 @@ public class GeneratorAntTask extends Task {
         }
 
 
-        File configurationFile = new File(configfile);
-        if (!configurationFile.exists()) {
+        Path configurationFile = Path.of(configfile);
+        if (Files.notExists(configurationFile)) {
             throw new BuildException(getString(
                     "RuntimeError.1", configfile)); //$NON-NLS-1$
         }
-        return configurationFile;
+        return configurationFile.toFile();
     }
 
     public String getConfigfile() {

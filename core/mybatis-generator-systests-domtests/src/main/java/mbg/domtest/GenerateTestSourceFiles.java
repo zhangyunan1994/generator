@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +17,12 @@ package mbg.domtest;
 
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +35,7 @@ import org.reflections.Reflections;
 
 public class GenerateTestSourceFiles {
 
-    public static void main (String[] args) {
+    public static void main(String[] args) {
         if (args.length < 1 || !StringUtility.stringHasValue(args[0])) {
             throw new RuntimeException("This class requres one argument which is the location of the output directory");
         }
@@ -42,26 +45,26 @@ public class GenerateTestSourceFiles {
         GenerateTestSourceFiles app = new GenerateTestSourceFiles();
 
         try {
-            app.run(new File(outputDirectory));
+            app.run(Path.of(outputDirectory).toFile());
         } catch (Exception e) {
             throw new RuntimeException("Exception creating test classes", e);
         }
     }
 
-    private void gatherGenerators(List<CompilationUnitGenerator> generators) throws InstantiationException, IllegalAccessException {
+    private void gatherGenerators(List<CompilationUnitGenerator> generators) throws ReflectiveOperationException {
         Reflections reflections = new Reflections("mbg.domtest.generators");
         Set<Class<? extends CompilationUnitGenerator>> classes = reflections.getSubTypesOf(CompilationUnitGenerator.class);
 
         for (Class<? extends CompilationUnitGenerator> clazz : classes) {
             if (clazz.getAnnotation(IgnoreDomTest.class) == null) {
-                generators.add(clazz.newInstance());
+                generators.add(clazz.getDeclaredConstructor().newInstance());
             } else {
                 System.out.println("Generator " + clazz.getName() + " ignored");
             }
         }
     }
 
-    private void run(File outputDirectory) throws IOException, InstantiationException, IllegalAccessException {
+    private void run(File outputDirectory) throws IOException, ReflectiveOperationException {
         setupOutputDirectry(outputDirectory);
 
         List<CompilationUnitGenerator> generators = new ArrayList<>();
@@ -73,7 +76,7 @@ public class GenerateTestSourceFiles {
             cus.addAll(generator.generate());
         }
 
-        for (CompilationUnit cu: cus) {
+        for (CompilationUnit cu : cus) {
             writeCompilationUnit(outputDirectory, cu);
         }
     }
@@ -98,28 +101,29 @@ public class GenerateTestSourceFiles {
             sb.append(File.separatorChar);
         }
 
-        File directory = new File(rootDirectory, sb.toString());
+        Path directory = rootDirectory.toPath().resolve(sb.toString());
 
-        if (!directory.isDirectory()) {
-            boolean rc = directory.mkdirs();
-            if (!rc) {
+        if (!Files.isDirectory(directory)) {
+            try {
+                Files.createDirectories(directory);
+            } catch (IOException e) {
                 throw new IOException("can't create package directory");
             }
         }
 
         String fileName = cu.getType().getShortName() + ".java";
-        File targetFile = new File(directory, fileName);
+        Path targetFile = directory.resolve(fileName);
 
         DefaultJavaFormatter formatter = new DefaultJavaFormatter();
-        writeFile(targetFile, formatter.getFormattedContent(cu));
+        writeFile(targetFile.toFile(), formatter.getFormattedContent(cu));
     }
 
     private void writeFile(File file, String content) throws IOException {
-        FileOutputStream fos = new FileOutputStream(file, false);
+        OutputStream fos = Files.newOutputStream(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         OutputStreamWriter osw = new OutputStreamWriter(fos);
 
-        BufferedWriter bw = new BufferedWriter(osw);
-        bw.write(content);
-        bw.close();
+        try (BufferedWriter bw = new BufferedWriter(osw)) {
+            bw.write(content);
+        }
     }
 }

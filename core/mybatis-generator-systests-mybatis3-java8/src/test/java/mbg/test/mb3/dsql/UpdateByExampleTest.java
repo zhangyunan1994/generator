@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,7 @@ import static mbg.test.mb3.generated.dsql.mapper.AwfulTableDynamicSqlSupport.awf
 import static mbg.test.mb3.generated.dsql.mapper.FieldsblobsDynamicSqlSupport.fieldsblobs;
 import static mbg.test.mb3.generated.dsql.mapper.FieldsonlyDynamicSqlSupport.fieldsonly;
 import static mbg.test.mb3.generated.dsql.mapper.PkblobsDynamicSqlSupport.pkblobs;
-import static mbg.test.mb3.generated.dsql.mapper.PkfieldsDynamicSqlSupport.pkfields;
+import static mbg.test.mb3.generated.dsql.mapper.PkfieldsDynamicSqlSupport.pkfieldstable;
 import static mbg.test.mb3.generated.dsql.mapper.PkfieldsblobsDynamicSqlSupport.pkfieldsblobs;
 import static mbg.test.mb3.generated.dsql.mapper.PkonlyDynamicSqlSupport.pkonly;
 import static org.junit.jupiter.api.Assertions.*;
@@ -48,9 +48,7 @@ import mbg.test.mb3.generated.dsql.model.Pkfieldsblobs;
 import mbg.test.mb3.generated.dsql.model.Pkonly;
 
 /**
- *
  * @author Jeff Butler
- *
  */
 public class UpdateByExampleTest extends AbstractTest {
 
@@ -89,26 +87,26 @@ public class UpdateByExampleTest extends AbstractTest {
                     dsl.where(fieldsonly.integerfield, isEqualTo(5)));
             assertEquals(1, answer.size());
             record = answer.get(0);
-            assertEquals(record.getDoublefield(), 11.22, 0.001);
-            assertEquals(record.getFloatfield(), 33.44, 0.001);
-            assertEquals(record.getIntegerfield().intValue(), 5);
+            assertEquals(11.22, record.getDoublefield(), 0.001);
+            assertEquals(33.44, record.getFloatfield(), 0.001);
+            assertEquals(5, record.getIntegerfield().intValue());
 
             answer = mapper.select(dsl ->
                     dsl.where(fieldsonly.integerfield, isEqualTo(8)));
 
             assertEquals(1, answer.size());
             record = answer.get(0);
-            assertEquals(record.getDoublefield(), 99d, 0.001);
-            assertEquals(record.getFloatfield(), 66.77, 0.001);
-            assertEquals(record.getIntegerfield().intValue(), 8);
+            assertEquals(99d, record.getDoublefield(), 0.001);
+            assertEquals(66.77, record.getFloatfield(), 0.001);
+            assertEquals(8, record.getIntegerfield().intValue());
 
             answer = mapper.select(dsl ->
                     dsl.where(fieldsonly.integerfield, isEqualTo(9)));
             assertEquals(1, answer.size());
             record = answer.get(0);
-            assertEquals(record.getDoublefield(), 99d, 0.001);
-            assertEquals(record.getFloatfield(), 100.111, 0.001);
-            assertEquals(record.getIntegerfield().intValue(), 9);
+            assertEquals(99d, record.getDoublefield(), 0.001);
+            assertEquals(100.111, record.getFloatfield(), 0.001);
+            assertEquals(9, record.getIntegerfield().intValue());
         }
     }
 
@@ -148,7 +146,7 @@ public class UpdateByExampleTest extends AbstractTest {
             record = answer.get(0);
             assertNull(record.getDoublefield());
             assertNull(record.getFloatfield());
-            assertEquals(record.getIntegerfield().intValue(), 22);
+            assertEquals(22, record.getIntegerfield().intValue());
         }
     }
 
@@ -233,14 +231,14 @@ public class UpdateByExampleTest extends AbstractTest {
 
             int rows = mapper.update(dsl ->
                 PkfieldsMapper.updateSelectiveColumns(updateRecord, dsl)
-                .where(pkfields.lastname, isLike("J%")));
+                .where(pkfieldstable.lastname, isLike("J%")));
             assertEquals(1, rows);
 
             long returnedRows = mapper.count(dsl ->
-                    dsl.where(pkfields.firstname, isEqualTo("Fred"))
-                    .and(pkfields.lastname, isEqualTo("Jones"))
-                    .and(pkfields.id1, isEqualTo(3))
-                    .and(pkfields.id2, isEqualTo(4)));
+                    dsl.where(pkfieldstable.firstname, isEqualTo("Fred"))
+                    .and(pkfieldstable.lastname, isEqualTo("Jones"))
+                    .and(pkfieldstable.id1, isEqualTo(3))
+                    .and(pkfieldstable.id2, isEqualTo(4)));
             assertEquals(1, returnedRows);
         }
     }
@@ -271,14 +269,14 @@ public class UpdateByExampleTest extends AbstractTest {
 
             int rows = mapper.update(dsl ->
                 PkfieldsMapper.updateAllColumns(updateRecord, dsl)
-                .where(pkfields.id1, isEqualTo(3))
-                .and(pkfields.id2, isEqualTo(4)));
+                .where(pkfieldstable.id1, isEqualTo(3))
+                .and(pkfieldstable.id2, isEqualTo(4)));
             assertEquals(1, rows);
 
             long returnedRows = mapper.count(dsl ->
-                    dsl.where(pkfields.firstname, isEqualTo("Fred"))
-                    .and(pkfields.id1, isEqualTo(3))
-                    .and(pkfields.id2, isEqualTo(4)));
+                    dsl.where(pkfieldstable.firstname, isEqualTo("Fred"))
+                    .and(pkfieldstable.id1, isEqualTo(3))
+                    .and(pkfieldstable.id2, isEqualTo(4)));
             assertEquals(1, returnedRows);
         }
     }

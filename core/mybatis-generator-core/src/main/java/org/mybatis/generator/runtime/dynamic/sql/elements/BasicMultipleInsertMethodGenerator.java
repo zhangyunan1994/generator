@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,50 +39,14 @@ public class BasicMultipleInsertMethodGenerator extends AbstractMethodGenerator 
             return null;
         }
 
-        GeneratedKey gk = introspectedTable.getGeneratedKey();
-        if (gk == null) {
-            return generateMethodWithoutGeneratedKeys();
-        } else {
-            return generateMethodWithGeneratedKeys(gk);
-        }
-    }
-
-    private MethodAndImports generateMethodWithoutGeneratedKeys() {
-        Set<FullyQualifiedJavaType> imports = new HashSet<>();
-
-        FullyQualifiedJavaType adapter =
-                new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.SqlProviderAdapter"); //$NON-NLS-1$
-        FullyQualifiedJavaType annotation =
-                new FullyQualifiedJavaType("org.apache.ibatis.annotations.InsertProvider"); //$NON-NLS-1$
-
-        imports.add(new FullyQualifiedJavaType(
-                "org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider")); //$NON-NLS-1$
-        imports.add(adapter);
-        imports.add(annotation);
-
-        FullyQualifiedJavaType parameterType =
-                new FullyQualifiedJavaType(
-                        "org.mybatis.dynamic.sql.insert.render.MultiRowInsertStatementProvider"); //$NON-NLS-1$
-        imports.add(recordType);
-        parameterType.addTypeArgument(recordType);
-
-        Method method = new Method("insertMultiple"); //$NON-NLS-1$
-        method.setAbstract(true);
-        method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        method.addParameter(new Parameter(parameterType, "multipleInsertStatement")); //$NON-NLS-1$
-        context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, imports);
-        method.addAnnotation("@InsertProvider(type=SqlProviderAdapter.class, method=\"insertMultiple\")"); //$NON-NLS-1$
-
-        MethodAndImports.Builder builder = MethodAndImports.withMethod(method)
-                .withImports(imports);
-
-        return builder.build();
+        return introspectedTable.getGeneratedKey().map(this::generateMethodWithGeneratedKeys).orElse(null);
     }
 
     private MethodAndImports generateMethodWithGeneratedKeys(GeneratedKey gk) {
         Set<FullyQualifiedJavaType> imports = new HashSet<>();
 
-        imports.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Insert")); //$NON-NLS-1$
+        imports.add(new FullyQualifiedJavaType("org.mybatis.dynamic.sql.util.SqlProviderAdapter")); //$NON-NLS-1$)
+        imports.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.InsertProvider")); //$NON-NLS-1$
         imports.add(new FullyQualifiedJavaType("org.apache.ibatis.annotations.Param")); //$NON-NLS-1$
 
         Parameter parm1 = new Parameter(FullyQualifiedJavaType.getStringInstance(), "insertStatement"); //$NON-NLS-1$
@@ -101,9 +65,8 @@ public class BasicMultipleInsertMethodGenerator extends AbstractMethodGenerator 
         method.addParameter(parm1);
         method.addParameter(parm2);
         context.getCommentGenerator().addGeneralMethodAnnotation(method, introspectedTable, imports);
-        method.addAnnotation("@Insert({"); //$NON-NLS-1$
-        method.addAnnotation("    \"${insertStatement}\""); //$NON-NLS-1$
-        method.addAnnotation("})"); //$NON-NLS-1$
+        method.addAnnotation("@InsertProvider(type=SqlProviderAdapter.class, " //$NON-NLS-1$
+                + "method=\"insertMultipleWithGeneratedKeys\")"); //$NON-NLS-1$
 
         MethodAndImports.Builder builder = MethodAndImports.withMethod(method)
                 .withImports(imports);

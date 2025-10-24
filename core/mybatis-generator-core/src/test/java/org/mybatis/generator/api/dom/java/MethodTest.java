@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,14 +19,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.dom.java.render.MethodRenderer;
 
 class MethodTest {
 
-    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR = System.lineSeparator();
 
     @Test
     void testConstructor() {
@@ -166,7 +165,7 @@ class MethodTest {
         assertFalse(method.getReturnType().isPresent());
 
         method.setReturnType(FullyQualifiedJavaType.getIntInstance());
-        assertEquals(FullyQualifiedJavaType.getIntInstance(), method.getReturnType().get());
+        assertEquals(FullyQualifiedJavaType.getIntInstance(), method.getReturnType().orElseThrow());
     }
 
     @Test
@@ -229,7 +228,7 @@ class MethodTest {
                         + "}";
 
         MethodRenderer renderer = new MethodRenderer();
-        String rendered = renderer.render(method, false, null).stream().collect(Collectors.joining(LINE_SEPARATOR));
+        String rendered = String.join(LINE_SEPARATOR, renderer.render(method, false, null));
         assertEquals(excepted, rendered);
     }
 }

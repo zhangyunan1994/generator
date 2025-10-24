@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
 
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.model.Resource;
@@ -43,7 +42,6 @@ import org.mybatis.generator.internal.ObjectFactory;
 import org.mybatis.generator.internal.util.ClassloaderUtility;
 import org.mybatis.generator.internal.util.StringUtility;
 import org.mybatis.generator.internal.util.messages.Messages;
-import org.mybatis.generator.logging.LogFactory;
 
 /**
  * Goal which generates MyBatis artifacts.
@@ -52,11 +50,10 @@ import org.mybatis.generator.logging.LogFactory;
         requiresDependencyResolution = ResolutionScope.TEST)
 public class MyBatisGeneratorMojo extends AbstractMojo {
 
-    private ThreadLocal<ClassLoader> savedClassloader = new ThreadLocal<>();
+    private final ThreadLocal<ClassLoader> savedClassloader = new ThreadLocal<>();
 
     /**
      * Maven Project.
-     *
      */
     @Parameter(property = "project", required = true, readonly = true)
     private MavenProject project;
@@ -122,13 +119,13 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
     private String jdbcPassword;
 
     /**
-     * Comma delimited list of table names to generate.
+     * Comma-delimited list of table names to generate.
      */
     @Parameter(property = "mybatis.generator.tableNames")
     private String tableNames;
 
     /**
-     * Comma delimited list of contexts to generate.
+     * Comma-delimited list of contexts to generate.
      */
     @Parameter(property = "mybatis.generator.contexts")
     private String contexts;
@@ -164,8 +161,6 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
 
         saveClassLoader();
 
-        LogFactory.setLogFactory(new MavenLogFactory(this));
-
         calculateClassPath();
 
         // add resource directories to the classpath.  This is required to support
@@ -181,69 +176,38 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
         ObjectFactory.addExternalClassLoader(cl);
 
         if (configurationFile == null) {
-            throw new MojoExecutionException(
-                    Messages.getString("RuntimeError.0")); //$NON-NLS-1$
+            throw new MojoExecutionException(Messages.getString("RuntimeError.0")); //$NON-NLS-1$
         }
 
-        List<String> warnings = new ArrayList<>();
-
         if (!configurationFile.exists()) {
-            throw new MojoExecutionException(Messages.getString(
-                    "RuntimeError.1", configurationFile.toString())); //$NON-NLS-1$
+            throw new MojoExecutionException(Messages.getString("RuntimeError.1", configurationFile.toString())); //$NON-NLS-1$
         }
 
         runScriptIfNecessary();
 
-        Set<String> fullyqualifiedTables = new HashSet<>();
-        if (StringUtility.stringHasValue(tableNames)) {
-            StringTokenizer st = new StringTokenizer(tableNames, ","); //$NON-NLS-1$
-            while (st.hasMoreTokens()) {
-                String s = st.nextToken().trim();
-                if (s.length() > 0) {
-                    fullyqualifiedTables.add(s);
-                }
-            }
-        }
+        Set<String> fullyQualifiedTables = StringUtility.tokenize(tableNames);
 
-        Set<String> contextsToRun = new HashSet<>();
-        if (StringUtility.stringHasValue(contexts)) {
-            StringTokenizer st = new StringTokenizer(contexts, ","); //$NON-NLS-1$
-            while (st.hasMoreTokens()) {
-                String s = st.nextToken().trim();
-                if (s.length() > 0) {
-                    contextsToRun.add(s);
-                }
-            }
-        }
+        Set<String> contextsToRun = StringUtility.tokenize(contexts);
+
+        List<String> warnings = new ArrayList<>();
 
         try {
-            ConfigurationParser cp = new ConfigurationParser(
-                    project.getProperties(), warnings);
+            ConfigurationParser cp = new ConfigurationParser(project.getProperties(), warnings);
             Configuration config = cp.parseConfiguration(configurationFile);
 
             ShellCallback callback = new MavenShellCallback(this, overwrite);
 
-            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config,
-                    callback, warnings);
+            MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, callback, warnings);
 
-            myBatisGenerator.generate(new MavenProgressCallback(getLog(),
-                    verbose), contextsToRun, fullyqualifiedTables);
+            myBatisGenerator.generate(new MavenProgressCallback(getLog(), verbose), contextsToRun, fullyQualifiedTables);
 
-        } catch (XMLParserException e) {
+        } catch (XMLParserException | InvalidConfigurationException e) {
             for (String error : e.getErrors()) {
                 getLog().error(error);
             }
 
             throw new MojoExecutionException(e.getMessage());
-        } catch (SQLException e) {
-            throw new MojoExecutionException(e.getMessage());
-        } catch (IOException e) {
-            throw new MojoExecutionException(e.getMessage());
-        } catch (InvalidConfigurationException e) {
-            for (String error : e.getErrors()) {
-                getLog().error(error);
-            }
-
+        } catch (SQLException | IOException e) {
             throw new MojoExecutionException(e.getMessage());
         } catch (InterruptedException e) {
             // ignore (will never happen with the DefaultShellCallback)
@@ -253,8 +217,7 @@ public class MyBatisGeneratorMojo extends AbstractMojo {
             getLog().warn(error);
         }
 
-        if (project != null && outputDirectory != null
-                && outputDirectory.exists()) {
+        if (project != null && outputDirectory != null && outputDirectory.exists()) {
             project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
 
             Resource resource = new Resource();

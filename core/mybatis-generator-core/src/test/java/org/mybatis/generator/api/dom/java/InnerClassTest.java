@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,14 +17,12 @@ package org.mybatis.generator.api.dom.java;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.stream.Collectors;
-
 import org.junit.jupiter.api.Test;
 import org.mybatis.generator.api.dom.java.render.InnerClassRenderer;
 
 class InnerClassTest {
 
-    private static final String LF = System.getProperty("line.separator");
+    private static final String LF = System.lineSeparator();
 
     @Test
     void testConstructor() {
@@ -79,7 +77,7 @@ class InnerClassTest {
         assertFalse(clazz.getSuperClass().isPresent());
         clazz.setSuperClass("com.hoge.SuperClass");
         assertNotNull(clazz.getSuperClass());
-        assertEquals("com.hoge.SuperClass", clazz.getSuperClass().get().getFullyQualifiedName());
+        assertEquals("com.hoge.SuperClass", clazz.getSuperClass().orElseThrow().getFullyQualifiedName());
     }
 
     @Test
@@ -176,21 +174,21 @@ class InnerClassTest {
 
         String excepted = "abstract class UserClass<T, U>  extends SuperClass implements UserInterface {" + LF
                 + "    String test;" + LF
-                + "" + LF
+                + LF
                 + "    {" + LF
                 + "    }" + LF
-                + "" + LF
+                + LF
                 + "    abstract void method1();" + LF
-                + "" + LF
+                + LF
                 + "    class InnerUserClass {" + LF
                 + "    }" + LF
-                + "" + LF
+                + LF
                 + "    enum TestEnum {" + LF
                 + "    }" + LF
                 + "}";
 
         InnerClassRenderer renderer = new InnerClassRenderer();
-        String rendered = renderer.render(innerClass, null).stream().collect(Collectors.joining(LF));
+        String rendered = String.join(LF, renderer.render(innerClass, null));
         assertEquals(excepted, rendered);
     }
 }

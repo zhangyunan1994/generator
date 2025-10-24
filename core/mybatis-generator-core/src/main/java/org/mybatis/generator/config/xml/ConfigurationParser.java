@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,13 +17,15 @@ package org.mybatis.generator.config.xml;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -53,18 +55,18 @@ public class ConfigurationParser {
 
     /**
      * This constructor accepts a properties object which may be used to specify
-     * an additional property set.  Typically this property set will be Ant or Maven properties
+     * an additional property set.  Typically, this property set will be Ant or Maven properties
      * specified in the build.xml file or the POM.
      *
      * <p>If there are name collisions between the different property sets, they will be
      * resolved in this order:
      *
      * <ol>
-     *   <li>System properties take highest precedence</li>
+     *   <li>System properties take the highest precedence</li>
      *   <li>Properties specified in the &lt;properties&gt; configuration
      *       element are next</li>
      *   <li>Properties specified in this "extra" property set are
-     *       lowest precedence.</li>
+     *       the lowest precedence.</li>
      * </ol>
      *
      * @param extraProperties an (optional) set of properties used to resolve property
@@ -75,11 +77,7 @@ public class ConfigurationParser {
         super();
         this.extraProperties = extraProperties;
 
-        if (warnings == null) {
-            this.warnings = new ArrayList<>();
-        } else {
-            this.warnings = warnings;
-        }
+        this.warnings = Objects.requireNonNullElseGet(warnings, ArrayList::new);
 
         parseErrors = new ArrayList<>();
     }
@@ -87,9 +85,9 @@ public class ConfigurationParser {
     public Configuration parseConfiguration(File inputFile) throws IOException,
             XMLParserException {
 
-        FileReader fr = new FileReader(inputFile);
-
-        return parseConfiguration(fr);
+        try (BufferedReader fr = Files.newBufferedReader(inputFile.toPath())) {
+            return parseConfiguration(fr);
+        }
     }
 
     public Configuration parseConfiguration(Reader reader) throws IOException,

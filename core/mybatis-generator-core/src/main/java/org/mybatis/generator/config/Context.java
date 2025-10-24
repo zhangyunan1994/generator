@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,10 +24,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.mybatis.generator.api.CommentGenerator;
 import org.mybatis.generator.api.ConnectionFactory;
+import org.mybatis.generator.api.GeneratedFile;
 import org.mybatis.generator.api.GeneratedJavaFile;
 import org.mybatis.generator.api.GeneratedKotlinFile;
 import org.mybatis.generator.api.GeneratedXmlFile;
@@ -90,11 +92,7 @@ public class Context extends PropertyHolder {
     public Context(ModelType defaultModelType) {
         super();
 
-        if (defaultModelType == null) {
-            this.defaultModelType = ModelType.CONDITIONAL;
-        } else {
-            this.defaultModelType = defaultModelType;
-        }
+        this.defaultModelType = Objects.requireNonNullElse(defaultModelType, ModelType.CONDITIONAL);
 
         tableConfigurations = new ArrayList<>();
         pluginConfigurations = new ArrayList<>();
@@ -349,7 +347,7 @@ public class Context extends PropertyHolder {
 
     /**
      * Introspect tables based on the configuration specified in the
-     * constructor. This method is long running.
+     * constructor. This method is long-running.
      *
      * @param callback
      *            a progress callback if progress information is desired, or
@@ -432,6 +430,7 @@ public class Context extends PropertyHolder {
             List<GeneratedJavaFile> generatedJavaFiles,
             List<GeneratedXmlFile> generatedXmlFiles,
             List<GeneratedKotlinFile> generatedKotlinFiles,
+            List<GeneratedFile> otherGeneratedFiles,
             List<String> warnings)
             throws InterruptedException {
 
@@ -447,11 +446,21 @@ public class Context extends PropertyHolder {
             }
         }
 
+        // initialize everything first before generating. This allows plugins to know about other
+        // items in the configuration.
+        for (IntrospectedTable introspectedTable : introspectedTables) {
+            callback.checkCancel();
+            introspectedTable.initialize();
+            introspectedTable.calculateGenerators(warnings, callback);
+        }
+
         for (IntrospectedTable introspectedTable : introspectedTables) {
             callback.checkCancel();
 
-            introspectedTable.initialize();
-            introspectedTable.calculateGenerators(warnings, callback);
+            if (!pluginAggregator.shouldGenerate(introspectedTable)) {
+                continue;
+            }
+
             generatedJavaFiles.addAll(introspectedTable
                     .getGeneratedJavaFiles());
             generatedXmlFiles.addAll(introspectedTable
@@ -465,6 +474,8 @@ public class Context extends PropertyHolder {
                     .contextGenerateAdditionalXmlFiles(introspectedTable));
             generatedKotlinFiles.addAll(pluginAggregator
                     .contextGenerateAdditionalKotlinFiles(introspectedTable));
+            otherGeneratedFiles.addAll(pluginAggregator
+                    .contextGenerateAdditionalFiles(introspectedTable));
         }
 
         generatedJavaFiles.addAll(pluginAggregator
@@ -473,9 +484,20 @@ public class Context extends PropertyHolder {
                 .contextGenerateAdditionalXmlFiles());
         generatedKotlinFiles.addAll(pluginAggregator
                 .contextGenerateAdditionalKotlinFiles());
+        otherGeneratedFiles.addAll(pluginAggregator
+                .contextGenerateAdditionalFiles());
     }
 
-    private Connection getConnection() throws SQLException {
+    /**
+     * This method creates a new JDBC connection from the values specified in the configuration file.
+     * If you call this method, then you are responsible
+     * for closing the connection (See {@link Context#closeConnection(Connection)}). If you do not
+     * close the connection, then there could be connection leaks.
+     *
+     * @return a new connection created from the values in the configuration file
+     * @throws SQLException if any error occurs while creating the connection
+     */
+    public Connection getConnection() throws SQLException {
         ConnectionFactory connectionFactory;
         if (jdbcConnectionConfiguration != null) {
             connectionFactory = new JDBCConnectionFactory(jdbcConnectionConfiguration);
@@ -486,7 +508,13 @@ public class Context extends PropertyHolder {
         return connectionFactory.getConnection();
     }
 
-    private void closeConnection(Connection connection) {
+    /**
+     * This method closes a JDBC connection and ignores any errors. If the passed connection is null,
+     * then the method does nothing.
+     *
+     * @param connection a JDBC connection to close, may be null
+     */
+    public void closeConnection(Connection connection) {
         if (connection != null) {
             try {
                 connection.close();

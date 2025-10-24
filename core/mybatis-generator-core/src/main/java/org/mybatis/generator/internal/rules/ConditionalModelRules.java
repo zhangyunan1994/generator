@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,16 +23,9 @@ import org.mybatis.generator.api.IntrospectedTable;
  * with BLOBs classes if the class would only hold one field.
  *
  * @author Jeff Butler
- *
  */
 public class ConditionalModelRules extends BaseRules {
 
-    /**
-     * Instantiates a new conditional model rules.
-     *
-     * @param introspectedTable
-     *            the introspected table
-     */
     public ConditionalModelRules(IntrospectedTable introspectedTable) {
         super(introspectedTable);
     }
@@ -65,7 +58,7 @@ public class ConditionalModelRules extends BaseRules {
     /**
      * Blobs will be in the base record class if there is only one blob column.
      *
-     * @return true if there are blobs but they are in the base record class
+     * @return true if there are blobs, but they are in the base record class
      */
     private boolean blobsAreInBaseRecord() {
         return introspectedTable.hasBLOBColumns() && !generateRecordWithBLOBsClass();

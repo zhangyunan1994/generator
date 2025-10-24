@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,12 @@ import static org.mybatis.generator.internal.util.StringUtility.composeFullyQual
 import static org.mybatis.generator.internal.util.StringUtility.isTrue;
 import static org.mybatis.generator.internal.util.StringUtility.stringHasValue;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 import org.mybatis.generator.internal.util.messages.Messages;
 
@@ -167,11 +172,9 @@ public class TableConfiguration extends PropertyHolder {
             return true;
         }
 
-        if (!(obj instanceof TableConfiguration)) {
+        if (!(obj instanceof TableConfiguration other)) {
             return false;
         }
-
-        TableConfiguration other = (TableConfiguration) obj;
 
         return Objects.equals(this.catalog, other.catalog)
                 && Objects.equals(this.schema, other.schema)
@@ -215,8 +218,8 @@ public class TableConfiguration extends PropertyHolder {
         return null;
     }
 
-    public GeneratedKey getGeneratedKey() {
-        return generatedKey;
+    public Optional<GeneratedKey> getGeneratedKey() {
+        return Optional.ofNullable(generatedKey);
     }
 
     public String getSelectByExampleQueryId() {
@@ -458,5 +461,13 @@ public class TableConfiguration extends PropertyHolder {
 
     public void setSqlProviderName(String sqlProviderName) {
         this.sqlProviderName = sqlProviderName;
+    }
+
+    public String getDynamicSqlSupportClassName() {
+        return getProperty(PropertyRegistry.TABLE_DYNAMIC_SQL_SUPPORT_CLASS_NAME);
+    }
+
+    public String getDynamicSqlTableObjectName() {
+        return getProperty(PropertyRegistry.TABLE_DYNAMIC_SQL_TABLE_OBJECT_NAME);
     }
 }

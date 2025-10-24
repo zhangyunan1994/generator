@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,6 @@ package org.mybatis.generator.api;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.stream.Collectors;
 
 import org.mybatis.generator.api.dom.java.Field;
 import org.mybatis.generator.api.dom.java.Interface;
@@ -39,7 +38,6 @@ import org.mybatis.generator.config.Context;
  * subsequent plugin is called.
  *
  * @author Jeff Butler
- *
  */
 public abstract class CompositePlugin implements Plugin {
     private final List<Plugin> plugins = new ArrayList<>();
@@ -78,7 +76,7 @@ public abstract class CompositePlugin implements Plugin {
         return plugins.stream()
                 .map(Plugin::contextGenerateAdditionalJavaFiles)
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -86,7 +84,7 @@ public abstract class CompositePlugin implements Plugin {
         return plugins.stream()
                 .map(p -> p.contextGenerateAdditionalJavaFiles(introspectedTable))
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -94,7 +92,7 @@ public abstract class CompositePlugin implements Plugin {
         return plugins.stream()
                         .map(Plugin::contextGenerateAdditionalKotlinFiles)
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -102,7 +100,23 @@ public abstract class CompositePlugin implements Plugin {
         return plugins.stream()
                 .map(p -> p.contextGenerateAdditionalKotlinFiles(introspectedTable))
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    @Override
+    public List<GeneratedFile> contextGenerateAdditionalFiles() {
+        return plugins.stream()
+                .map(Plugin::contextGenerateAdditionalFiles)
+                .flatMap(List::stream)
+                .toList();
+    }
+
+    @Override
+    public List<GeneratedFile> contextGenerateAdditionalFiles(IntrospectedTable introspectedTable) {
+        return plugins.stream()
+                .map(p -> p.contextGenerateAdditionalFiles(introspectedTable))
+                .flatMap(List::stream)
+                .toList();
     }
 
     @Override
@@ -110,7 +124,7 @@ public abstract class CompositePlugin implements Plugin {
         return plugins.stream()
                 .map(Plugin::contextGenerateAdditionalXmlFiles)
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -118,61 +132,13 @@ public abstract class CompositePlugin implements Plugin {
         return plugins.stream()
                 .map(p -> p.contextGenerateAdditionalXmlFiles(introspectedTable))
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public boolean clientGenerated(Interface interfaze, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.clientGenerated(interfaze, introspectedTable)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicCountMethodGenerated(Method method, Interface interfaze,
-            IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicCountMethodGenerated(method, interfaze, introspectedTable)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicCountMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicCountMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicDeleteMethodGenerated(Method method, Interface interfaze,
-            IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicDeleteMethodGenerated(method, interfaze, introspectedTable)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicDeleteMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicDeleteMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -229,30 +195,6 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean clientBasicInsertMultipleHelperMethodGenerated(Method method, Interface interfaze,
-            IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicInsertMultipleHelperMethodGenerated(method, interfaze, introspectedTable)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicInsertMultipleHelperMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicInsertMultipleHelperMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
     public boolean clientBasicSelectManyMethodGenerated(Method method, Interface interfaze,
             IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
@@ -293,30 +235,6 @@ public abstract class CompositePlugin implements Plugin {
             IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.clientBasicSelectOneMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicUpdateMethodGenerated(Method method, Interface interfaze,
-            IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicUpdateMethodGenerated(method, interfaze, introspectedTable)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean clientBasicUpdateMethodGenerated(KotlinFunction kotlinFunction, KotlinFile kotlinFile,
-            IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.clientBasicUpdateMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
                 return false;
             }
         }
@@ -1274,10 +1192,11 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean dynamicSqlSupportGenerated(KotlinFile kotlinFile, KotlinType supportClass,
-            IntrospectedTable introspectedTable) {
+    public boolean dynamicSqlSupportGenerated(KotlinFile kotlinFile, KotlinType outerSupportObject,
+                                              KotlinType innerSupportClass, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.dynamicSqlSupportGenerated(kotlinFile, supportClass, introspectedTable)) {
+            if (!plugin.dynamicSqlSupportGenerated(kotlinFile, outerSupportObject, innerSupportClass,
+                    introspectedTable)) {
                 return false;
             }
         }
@@ -1286,20 +1205,9 @@ public abstract class CompositePlugin implements Plugin {
     }
 
     @Override
-    public boolean mapperExtensionsGenerated(KotlinFile extensionsFile, IntrospectedTable introspectedTable) {
+    public boolean mapperGenerated(KotlinFile mapperFile, KotlinType mapper, IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
-            if (!plugin.mapperExtensionsGenerated(extensionsFile, introspectedTable)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
-    public boolean mapperGenerated(KotlinFile mapperFile, IntrospectedTable introspectedTable) {
-        for (Plugin plugin : plugins) {
-            if (!plugin.mapperGenerated(mapperFile, introspectedTable)) {
+            if (!plugin.mapperGenerated(mapperFile, mapper, introspectedTable)) {
                 return false;
             }
         }
@@ -1348,6 +1256,29 @@ public abstract class CompositePlugin implements Plugin {
             IntrospectedTable introspectedTable) {
         for (Plugin plugin : plugins) {
             if (!plugin.clientUpdateByPrimaryKeyMethodGenerated(kotlinFunction, kotlinFile, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean clientUpdateByPrimaryKeyMethodGenerated(Method method, Interface interfaze,
+            IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.clientUpdateByPrimaryKeyMethodGenerated(method, interfaze, introspectedTable)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public boolean shouldGenerate(IntrospectedTable introspectedTable) {
+        for (Plugin plugin : plugins) {
+            if (!plugin.shouldGenerate(introspectedTable)) {
                 return false;
             }
         }

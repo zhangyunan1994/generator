@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,9 +56,16 @@ public class InsertMultipleMethodGenerator extends AbstractMethodGenerator {
 
         method.addParameter(new Parameter(parameterType, "records")); //$NON-NLS-1$
 
-        method.addBodyLine("return MyBatis3Utils.insertMultiple(this::insertMultiple, records, " + //$NON-NLS-1$
-                tableFieldName + //$NON-NLS-1$
-                ", c ->"); //$NON-NLS-1$
+        String methodName;
+        if (Utils.canRetrieveMultiRowGeneratedKeys(introspectedTable)) {
+            methodName = "MyBatis3Utils.insertMultipleWithGeneratedKeys";
+        } else {
+            methodName = "MyBatis3Utils.insertMultiple";
+        }
+
+        method.addBodyLine("return " + methodName + "(this::insertMultiple, records, " //$NON-NLS-1$ //$NON-NLS-2$
+                + tableFieldName // $NON-NLS-1$
+                + ", c ->"); //$NON-NLS-1$
 
         List<IntrospectedColumn> columns =
                 ListUtilities.removeIdentityAndGeneratedAlwaysColumns(introspectedTable.getAllColumns());

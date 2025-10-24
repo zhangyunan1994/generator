@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2006-2020 the original author or authors.
+       Copyright 2006-2025 the original author or authors.
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-          http://www.apache.org/licenses/LICENSE-2.0
+          https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing, software
        distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,10 +40,30 @@ online
 <a target="_blank" href="https://github.com/mybatis/generator/tree/master/core/mybatis-generator-core/src/main/java/org/mybatis/generator/plugins">
 here</a>.</p>
 
+<h2>org.mybatis.generator.plugins.CacheNamespacePlugin</h2>
+<p>This plugin adds a @CacheNamespace annotation to generated mapper interface (Kotlin or Java).  This
+    plugin is for MyBatis3 targeted runtimes only.</p>
+<p>This plugin accepts the following properties.  All are optional and,
+    if specified, most values (except "cache_skip") will be passed directly to the corresponding property
+    on the generated @CacheNamespace annotation. The cache_eviction and cache_implementation properties
+    must be fully qualified class names. The class will be added to the import list in the mapper, and the
+    short name will be used on the generated annotation.
+    If "cache_skip" is set to "true" on the plugin configuration,
+    or for any table, the annotation will not be generated.</p>
+<ul>
+    <li>cache_blocking</li>
+    <li>cache_flushInterval</li>
+    <li>cache_readWrite</li>
+    <li>cache_size</li>
+    <li>cache_eviction (must be a fully qualified class name)</li>
+    <li>cache_implementation (must be a fully qualified class name)</li>
+    <li>cache_skip</li>
+</ul>
+<p>Any property can be overridden by specifying the property on a &lt;table&gt; element.</p>
+
 <h2>org.mybatis.generator.plugins.CachePlugin</h2>
 <p>This plugin has no impact when the target runtime in use does not generate XML.</p>
-<p>This plugin adds a &lt;cache&gt; element to generated SQL maps.  This
-plugin is for MyBatis3 targeted runtimes only.</p>
+<p>This plugin adds a &lt;cache&gt; element to generated SQL maps.</p>
 <p>This plugin accepts the following properties.  All are optional and,
 if specified, the values will be passed directly to the corresponding property
 on the generated &lt;cache&gt; element.</p>
@@ -60,7 +80,7 @@ element.</p>
 <h2>org.mybatis.generator.plugins.CaseInsensitiveLikePlugin</h2>
 <p>This plugin has no impact when the target runtime in use is based on MyBatis Dynamic SQL.</p>
 <p>This plugin adds methods to the Example class (actually to the Criteria inner class)
-to support case insensitive LIKE searches.  This demonstrates adding functionality to
+to support case-insensitive LIKE searches.  This demonstrates adding functionality to
 the example classes via a plugin, rather than extending the class.</p>
 
 <h2>org.mybatis.generator.plugins.EqualsHashCodePlugin</h2>
@@ -98,6 +118,11 @@ The plugin will create the additional Methods:
 
 <p>Using this plugin, you can configure the property values fluently with chained method calls. Example: <code>new MyDomain().withFoo("Test").withBar(4711);</code></p>
 
+
+<h2>org.mybatis.generator.plugins.IgnoreViewsPlugin</h2>
+<p>This plugin will filter out any table of type "VIEW" from a code generation run. This can be useful if you use
+    a wildcard to select many tables and views, but don't want to generate code for the views.
+</p>
 
 <h2>org.mybatis.generator.plugins.MapperAnnotationPlugin</h2>
 <p>This plugin has no impact and is not needed when the target runtime in use is based on MyBatis Dynamic SQL.</p>
@@ -190,7 +215,7 @@ keys, even if they are not defined as primary key in the database.
 This is useful in the case where the database table does not have a
 primary defined.  Normally, MBG will generate a very limited
 set of methods if there is no primary key.  This plugin can be
-used to enable generation of the full compliment of MBG methods.</p>
+used to enable generation of the full complement of MBG methods.</p>
 <p>To use the plugin, add the property "virtualKeyColumns" to your
 &lt;table&gt; configuration and set the value to a comma or space
 delimited list of column names that should be treated as primary

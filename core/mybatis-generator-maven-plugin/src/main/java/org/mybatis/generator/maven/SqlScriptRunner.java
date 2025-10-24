@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,13 +16,13 @@
 package org.mybatis.generator.maven;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.SQLException;
@@ -45,10 +45,10 @@ import org.mybatis.generator.internal.util.messages.Messages;
  */
 public class SqlScriptRunner {
     private String driver;
-    private String url;
-    private String userid;
+    private final String url;
+    private final String userid;
     private String password;
-    private String sourceFile;
+    private final String sourceFile;
     private Log log;
 
     public SqlScriptRunner(String sourceFile, String driver, String url,
@@ -79,7 +79,7 @@ public class SqlScriptRunner {
 
         try {
             Class<?> driverClass = ObjectFactory.externalClassForName(driver);
-            Driver theDriver = (Driver) driverClass.newInstance();
+            Driver theDriver = (Driver) driverClass.getDeclaredConstructor().newInstance();
 
             Properties properties = new Properties();
             if (userid != null) {
@@ -114,10 +114,8 @@ public class SqlScriptRunner {
             throw new MojoExecutionException("SqlException: " + e.getMessage(), e);
         } catch (IOException e) {
             throw new MojoExecutionException("IOException: " + e.getMessage(), e);
-        } catch (InstantiationException e) {
-            throw new MojoExecutionException("InstantiationException: " + e.getMessage());
-        } catch (IllegalAccessException e) {
-            throw new MojoExecutionException("IllegalAccessException: " + e.getMessage());
+        } catch (ReflectiveOperationException e) {
+            throw new MojoExecutionException("ReflectiveOperationException: " + e.getMessage());
         } finally {
             closeConnection(connection);
         }
@@ -175,7 +173,7 @@ public class SqlScriptRunner {
 
             if (line.endsWith(";")) { //$NON-NLS-1$
                 sb.append(' ');
-                sb.append(line.substring(0, line.length() - 1));
+                sb.append(line, 0, line.length() - 1);
                 break;
             } else {
                 sb.append(' ');
@@ -185,11 +183,11 @@ public class SqlScriptRunner {
 
         String s = sb.toString().trim();
 
-        if (s.length() > 0) {
+        if (!s.isEmpty()) {
             log.debug(Messages.getString("Progress.13", s)); //$NON-NLS-1$
         }
 
-        return s.length() > 0 ? s : null;
+        return s.isEmpty() ? null : s;
     }
 
     public void setLog(Log log) {
@@ -208,11 +206,11 @@ public class SqlScriptRunner {
             }
             answer = new BufferedReader(new InputStreamReader(is));
         } else {
-            File file = new File(sourceFile);
-            if (!file.exists()) {
+            Path file = Path.of(sourceFile);
+            if (Files.notExists(file)) {
                 throw new MojoExecutionException("SQL script file does not exist");
             }
-            answer = new BufferedReader(new FileReader(file));
+            answer = Files.newBufferedReader(file);
         }
 
         return answer;

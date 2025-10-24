@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package org.mybatis.generator.runtime.kotlin.elements;
 
+import org.mybatis.generator.api.IntrospectedColumn;
 import org.mybatis.generator.api.IntrospectedTable;
 import org.mybatis.generator.api.dom.kotlin.KotlinArg;
 import org.mybatis.generator.api.dom.kotlin.KotlinFile;
@@ -32,8 +33,7 @@ public abstract class AbstractKotlinFunctionGenerator {
         tableFieldName = builder.tableFieldName;
     }
 
-    protected void acceptParts(KotlinFile kotlinFile, KotlinFunction kotlinFunction,
-            KotlinFunctionParts functionParts) {
+    protected void acceptParts(KotlinFunction kotlinFunction, KotlinFunctionParts functionParts) {
         for (KotlinArg argument : functionParts.getArguments()) {
             kotlinFunction.addArgument(argument);
         }
@@ -43,7 +43,6 @@ public abstract class AbstractKotlinFunctionGenerator {
         }
 
         kotlinFunction.addCodeLines(functionParts.getCodeLines());
-        kotlinFile.addImports(functionParts.getImports());
     }
 
     protected void acceptParts(KotlinFunctionAndImports functionAndImports, KotlinFunctionParts functionParts) {
@@ -62,6 +61,33 @@ public abstract class AbstractKotlinFunctionGenerator {
     protected void addFunctionComment(KotlinFunctionAndImports functionAndImports) {
         context.getCommentGenerator().addGeneralFunctionComment(functionAndImports.getFunction(), introspectedTable,
                 functionAndImports.getImports());
+    }
+
+    public static FieldNameAndImport calculateFieldNameAndImport(String tableFieldName, String supportObjectImport,
+                                                     IntrospectedColumn column) {
+        FieldNameAndImport answer = new FieldNameAndImport();
+        answer.fieldName = column.getJavaProperty();
+        if (answer.fieldName.equals(tableFieldName)) {
+            // name collision, no shortcut generated
+            answer.fieldName = tableFieldName + "." + answer.fieldName; //$NON-NLS-1$
+            answer.importString = supportObjectImport + "." + tableFieldName; //$NON-NLS-1$
+        } else {
+            answer.importString = supportObjectImport + "." + answer.fieldName; //$NON-NLS-1$
+        }
+        return answer;
+    }
+
+    public static class FieldNameAndImport {
+        private String fieldName;
+        private String importString;
+
+        public String fieldName() {
+            return fieldName;
+        }
+
+        public String importString() {
+            return importString;
+        }
     }
 
     public abstract KotlinFunctionAndImports generateMethodAndImports();

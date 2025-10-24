@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,10 +17,11 @@ package org.mybatis.generator.internal.util;
 
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -32,7 +33,6 @@ import org.mybatis.generator.logging.LogFactory;
  * This class holds methods useful for constructing custom classloaders.
  *
  * @author Jeff Butler
- *
  */
 public class ClassloaderUtility {
 
@@ -46,18 +46,18 @@ public class ClassloaderUtility {
 
     public static ClassLoader getCustomClassloader(Collection<String> entries) {
         List<URL> urls = new ArrayList<>();
-        File file;
+        Path file;
 
         if (entries != null) {
             for (String classPathEntry : entries) {
-                file = new File(classPathEntry);
-                if (!file.exists()) {
+                file = Path.of(classPathEntry);
+                if (Files.notExists(file)) {
                     LOG.warn(getString("Warning.31", classPathEntry)); //$NON-NLS-1$
                     continue;
                 }
 
                 try {
-                    urls.add(file.toURI().toURL());
+                    urls.add(file.toUri().toURL());
                 } catch (MalformedURLException e) {
                     // this shouldn't happen, but just in case...
                     throw new RuntimeException(getString(

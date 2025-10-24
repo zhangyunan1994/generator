@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-       Copyright 2006-2020 the original author or authors.
+       Copyright 2006-2025 the original author or authors.
 
        Licensed under the Apache License, Version 2.0 (the "License");
        you may not use this file except in compliance with the License.
        You may obtain a copy of the License at
 
-          http://www.apache.org/licenses/LICENSE-2.0
+          https://www.apache.org/licenses/LICENSE-2.0
 
        Unless required by applicable law or agreed to in writing, software
        distributed under the License is distributed on an "AS IS" BASIS,
@@ -47,6 +47,7 @@
     </table>
     <table tableName="PKFields" alias="B" >
       <property name="selectAllOrderByClause" value="ID1, ID2"/>
+      <property name="dynamicSqlTableObjectName" value="Pkfieldstable"/>
       <columnOverride column="wierd$Field" delimitedColumnName="true"/>
       <columnOverride column="stringBoolean" javaType="boolean" typeHandler="mbg.test.mb3.common.StringBooleanTypeHandler"/>
     </table>
@@ -71,8 +72,10 @@
       <columnOverride column="id7$$" delimitedColumnName="true" />
       <columnOverride column="class" property="dbClass" />
     </table>
-    <table schema="mbgtest" tableName="Translations" domainObjectName="Translation"/>
-    <table schema="mbgtest" tableName="Ids" domainObjectName="Id"/>
+    <table schema="mbgtest" tableName="Translations" domainObjectName="sub.Translation"/>
+    <table schema="mbgtest" tableName="Ids" domainObjectName="Id">
+      <property name="dynamicSqlSupportClassName" value="sub.IdDSQLSupport"/>
+    </table>
   </context>
 
   <context id="dsql-readonly" targetRuntime="MyBatis3DynamicSql">
@@ -118,6 +121,11 @@
   <context id="miscellaneousTests_Annotated" targetRuntime="MyBatis3DynamicSql">
     <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin" />
     <plugin type="org.mybatis.generator.plugins.RowBoundsPlugin" />
+    <plugin type="org.mybatis.generator.plugins.CacheNamespacePlugin" >
+      <property name="cache_readWrite" value="true"/>
+      <property name="cache_implementation" value="org.apache.ibatis.cache.impl.PerpetualCache"/>
+      <property name="cache_eviction" value="org.apache.ibatis.cache.decorators.LruCache"/>
+    </plugin>
 
     <commentGenerator>
       <property name="suppressAllComments" value="true"/>
@@ -133,6 +141,7 @@
     </javaModelGenerator>
 
     <javaClientGenerator targetPackage="mbg.test.mb3.generated.dsql.miscellaneous.mapper"  targetProject="MAVEN">
+      <property name="dynamicSqlSupportPackage" value="mbg.test.mb3.generated.dsql.miscellaneous.support"/>
     </javaClientGenerator>
 
     <table tableName="PKFields" domainObjectName="MyObject" alias="A" >
@@ -148,11 +157,18 @@
       <columnOverride column="wierd$Field" delimitedColumnName="true"/>
     </table>
     <table tableName="RegexRename">
+      <property name="cache_skip" value="true"/>
       <generatedKey column="CUST_ID" sqlStatement="call next value for TestSequence" />
       <columnRenamingRule searchString="^CUST" />
     </table>
     <table tableName="EnumTest">
       <columnOverride column="name" javaType="mbg.test.mb3.common.TestEnum"/>
+    </table>
+    <table tableName="EnumOrdinalTest">
+      <columnOverride column="name" javaType="mbg.test.mb3.common.TestEnum" jdbcType="INTEGER"
+                      typeHandler="org.apache.ibatis.type.EnumOrdinalTypeHandler" >
+        <property name="forceJavaTypeIntoMapping" value="true" />
+      </columnOverride>
     </table>
     <table tableName="GeneratedAlwaysTest" >
       <columnOverride column="ID_PLUS1" isGeneratedAlways="true" />

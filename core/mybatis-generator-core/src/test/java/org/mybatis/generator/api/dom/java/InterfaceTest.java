@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  */
 package org.mybatis.generator.api.dom.java;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashSet;
@@ -108,11 +108,11 @@ class InterfaceTest {
         field.setInitializationString("\"one\"");
         interfaze.addField(field);
 
-        String expected = "package foo;" + System.getProperty("line.separator")
-            + System.getProperty("line.separator")
-            + "public interface Bar {" + System.getProperty("line.separator")
-            + "    String EMPTY_STRING = \"\";" + System.getProperty("line.separator") + System.getProperty("line.separator")
-            + "    String ONE = \"one\";" + System.getProperty("line.separator")
+        String expected = "package foo;" + System.lineSeparator()
+            + System.lineSeparator()
+            + "public interface Bar {" + System.lineSeparator()
+            + "    String EMPTY_STRING = \"\";" + System.lineSeparator() + System.lineSeparator()
+            + "    String ONE = \"one\";" + System.lineSeparator()
             + "}";
 
         TopLevelInterfaceRenderer renderer = new TopLevelInterfaceRenderer();

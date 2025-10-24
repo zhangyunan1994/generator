@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,11 +30,12 @@ public class AnnotatedUpdateByExampleWithoutBLOBsMethodGenerator extends UpdateB
     public void addMapperAnnotations(Method method) {
         FullyQualifiedJavaType fqjt = new FullyQualifiedJavaType(introspectedTable.getMyBatis3SqlProviderType());
 
-        String s = "@UpdateProvider(type=" + //$NON-NLS-1$
-                fqjt.getShortName() +
-                ".class, method=\"" + //$NON-NLS-1$
-                introspectedTable.getUpdateByExampleStatementId() +
-                "\")";//$NON-NLS-1$
+        String s = "@UpdateProvider(type=" //$NON-NLS-1$
+                + fqjt.getShortName()
+                + ".class, method=\"" //$NON-NLS-1$
+                + introspectedTable.getUpdateByExampleStatementId()
+                + "\")"; //$NON-NLS-1$
+
         method.addAnnotation(s);
     }
 

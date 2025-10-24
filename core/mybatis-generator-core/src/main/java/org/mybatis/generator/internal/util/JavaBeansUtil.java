@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -74,6 +74,7 @@ public class JavaBeansUtil {
      *
      * @param property
      *            the property
+     *
      * @return the setter method name
      */
     public static String getSetterMethodName(String property) {
@@ -113,7 +114,7 @@ public class JavaBeansUtil {
             case ' ':
             case '/':
             case '&':
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     nextUpperCase = true;
                 }
                 break;
@@ -208,9 +209,7 @@ public class JavaBeansUtil {
         method.setVisibility(JavaVisibility.PUBLIC);
         method.setReturnType(fqjt);
 
-        String s = "return " + //$NON-NLS-1$
-                property +
-                ';';
+        String s = "return " + property + ';'; //$NON-NLS-1$
         method.addBodyLine(s);
 
         return method;

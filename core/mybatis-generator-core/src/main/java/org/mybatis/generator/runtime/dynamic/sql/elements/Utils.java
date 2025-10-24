@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,15 +28,15 @@ public class Utils {
     public static boolean generateMultipleRowInsert(IntrospectedTable introspectedTable) {
         // multi row inserts work if we don't expect generated keys, or of the generated keys are
         // JDBC standard.
-        GeneratedKey gk = introspectedTable.getGeneratedKey();
-        return gk == null || gk.isJdbcStandard();
+        return introspectedTable.getGeneratedKey().map(GeneratedKey::isJdbcStandard)
+                .orElse(true);
     }
 
-    public static boolean generateMultipleRowInsertHelper(IntrospectedTable introspectedTable) {
-        // if the generated keys are JDBC standard, then we need a helper method
-        // if no generated keys, or not JDBC, then we can't retrieve them anyway
-        GeneratedKey gk = introspectedTable.getGeneratedKey();
-        return gk != null && gk.isJdbcStandard();
+    public static boolean canRetrieveMultiRowGeneratedKeys(IntrospectedTable introspectedTable) {
+        // if the generated keys are JDBC standard, then we can retrieve them
+        // if no generated keys, or not JDBC, then we cannot retrieve them
+        return introspectedTable.getGeneratedKey().map(GeneratedKey::isJdbcStandard)
+                .orElse(false);
     }
 
     public static boolean generateSelectByPrimaryKey(IntrospectedTable introspectedTable) {

@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,11 +18,11 @@ package org.mybatis.generator.internal;
 import static org.mybatis.generator.internal.util.messages.Messages.getString;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.XMLConstants;
@@ -51,12 +51,13 @@ import org.xml.sax.SAXException;
  * @author Jeff Butler
  */
 public class XmlFileMergerJaxp {
-    private XmlFileMergerJaxp() {}
+    private XmlFileMergerJaxp() {
+    }
 
     private static class NullEntityResolver implements EntityResolver {
         /**
          * returns an empty reader. This is done so that the parser doesn't
-         * attempt to read a DTD. We don't need that support for the merge and
+         * attempt to read a DTD. We don't need that support for the merge, and
          * it can cause problems on systems that aren't Internet connected.
          */
         @Override
@@ -73,7 +74,7 @@ public class XmlFileMergerJaxp {
 
         try {
             return getMergedSource(new InputSource(new StringReader(generatedXmlFile.getFormattedContent())),
-                new InputSource(new InputStreamReader(new FileInputStream(existingFile), StandardCharsets.UTF_8)),
+                new InputSource(new InputStreamReader(Files.newInputStream(existingFile.toPath()), StandardCharsets.UTF_8)),
                 existingFile.getName());
         } catch (IOException | SAXException | ParserConfigurationException e) {
             throw new ShellException(getString("Warning.13", //$NON-NLS-1$
@@ -185,11 +186,8 @@ public class XmlFileMergerJaxp {
     private static boolean isOldFormatNode(Node node) {
         Element element = (Element) node;
         String id = element.getAttribute("id"); //$NON-NLS-1$
-        if (id != null) {
-            return MergeConstants.idStartsWithPrefix(id);
-        }
+        return MergeConstants.idStartsWithPrefix(id);
 
-        return false;
     }
 
     private static boolean isNewFormatNode(Node node) {
@@ -215,7 +213,7 @@ public class XmlFileMergerJaxp {
 
         if (node != null && node.getNodeType() == Node.TEXT_NODE) {
             Text tn = (Text) node;
-            if (tn.getData().trim().length() == 0) {
+            if (tn.getData().trim().isEmpty()) {
                 rc = true;
             }
         }

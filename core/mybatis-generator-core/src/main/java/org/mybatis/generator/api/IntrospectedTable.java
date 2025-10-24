@@ -1,11 +1,11 @@
 /*
- *    Copyright 2006-2020 the original author or authors.
+ *    Copyright 2006-2025 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *       https://www.apache.org/licenses/LICENSE-2.0
  *
  *    Unless required by applicable law or agreed to in writing, software
  *    distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.mybatis.generator.config.Context;
@@ -50,7 +49,6 @@ import org.mybatis.generator.internal.rules.Rules;
  * the actual code generation methods left unimplemented.
  *
  * @author Jeff Butler
- *
  */
 public abstract class IntrospectedTable {
 
@@ -95,7 +93,8 @@ public abstract class IntrospectedTable {
         ATTR_MYBATIS3_UPDATE_BY_EXAMPLE_WHERE_CLAUSE_ID,
         ATTR_MYBATIS3_SQL_PROVIDER_TYPE,
         ATTR_MYBATIS_DYNAMIC_SQL_SUPPORT_TYPE,
-        ATTR_KOTLIN_RECORD_TYPE
+        ATTR_KOTLIN_RECORD_TYPE,
+        ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME
     }
 
     protected TableConfiguration tableConfiguration;
@@ -150,7 +149,7 @@ public abstract class IntrospectedTable {
         return tableConfiguration.getSelectByPrimaryKeyQueryId();
     }
 
-    public GeneratedKey getGeneratedKey() {
+    public Optional<GeneratedKey> getGeneratedKey() {
         return tableConfiguration.getGeneratedKey();
     }
 
@@ -221,7 +220,7 @@ public abstract class IntrospectedTable {
     public List<IntrospectedColumn> getAllColumns() {
         return Stream.of(primaryKeyColumns.stream(), baseColumns.stream(), blobColumns.stream())
                 .flatMap(Function.identity())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     /**
@@ -232,7 +231,7 @@ public abstract class IntrospectedTable {
     public List<IntrospectedColumn> getNonBLOBColumns() {
         return Stream.of(primaryKeyColumns.stream(), baseColumns.stream())
                 .flatMap(Function.identity())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public int getNonBLOBColumnCount() {
@@ -242,7 +241,7 @@ public abstract class IntrospectedTable {
     public List<IntrospectedColumn> getNonPrimaryKeyColumns() {
         return Stream.of(baseColumns.stream(), blobColumns.stream())
                 .flatMap(Function.identity())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<IntrospectedColumn> getBLOBColumns() {
@@ -646,6 +645,14 @@ public abstract class IntrospectedTable {
                 .get(InternalAttribute.ATTR_COUNT_BY_EXAMPLE_STATEMENT_ID);
     }
 
+    public String getMyBatisDynamicSQLTableObjectName() {
+        return internalAttributes.get(InternalAttribute.ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME);
+    }
+
+    public void setMyBatisDynamicSQLTableObjectName(String name) {
+        internalAttributes.put(InternalAttribute.ATTR_MYBATIS_DYNAMIC_SQL_TABLE_OBJECT_NAME, name);
+    }
+
     private boolean isSubPackagesEnabled(PropertyHolder propertyHolder) {
         return isTrue(propertyHolder.getProperty(PropertyRegistry.ANY_ENABLE_SUB_PACKAGES));
     }
@@ -657,8 +664,23 @@ public abstract class IntrospectedTable {
             return null;
         }
 
-        return config.getTargetPackage() +
-                fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
+        return config.getTargetPackage()
+                + fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
+    }
+
+    protected String calculateDynamicSqlSupportPackage() {
+        JavaClientGeneratorConfiguration config = context
+                .getJavaClientGeneratorConfiguration();
+        if (config == null) {
+            return null;
+        }
+
+        String packkage = config.getProperty(PropertyRegistry.CLIENT_DYNAMIC_SQL_SUPPORT_PACKAGE);
+        if (stringHasValue(packkage)) {
+            return packkage + fullyQualifiedTable.getSubPackageForClientOrSqlMap(isSubPackagesEnabled(config));
+        } else {
+            return calculateJavaClientInterfacePackage();
+        }
     }
 
     protected void calculateJavaClientAttributes() {
@@ -697,19 +719,33 @@ public abstract class IntrospectedTable {
         setMyBatis3SqlProviderType(sb.toString());
 
         sb.setLength(0);
-        sb.append(calculateJavaClientInterfacePackage());
+        sb.append(calculateDynamicSqlSupportPackage());
         sb.append('.');
-        sb.append(fullyQualifiedTable.getDomainObjectName());
-        sb.append("DynamicSqlSupport"); //$NON-NLS-1$
+        if (stringHasValue(tableConfiguration.getDynamicSqlSupportClassName())) {
+            sb.append(tableConfiguration.getDynamicSqlSupportClassName());
+        } else {
+            if (stringHasValue(fullyQualifiedTable.getDomainObjectSubPackage())) {
+                sb.append(fullyQualifiedTable.getDomainObjectSubPackage());
+                sb.append('.');
+            }
+            sb.append(fullyQualifiedTable.getDomainObjectName());
+            sb.append("DynamicSqlSupport"); //$NON-NLS-1$
+        }
         setMyBatisDynamicSqlSupportType(sb.toString());
+
+        if (stringHasValue(tableConfiguration.getDynamicSqlTableObjectName())) {
+            setMyBatisDynamicSQLTableObjectName(tableConfiguration.getDynamicSqlTableObjectName());
+        } else {
+            setMyBatisDynamicSQLTableObjectName(fullyQualifiedTable.getDomainObjectName());
+        }
     }
 
     protected String calculateJavaModelPackage() {
         JavaModelGeneratorConfiguration config = context
                 .getJavaModelGeneratorConfiguration();
 
-        return config.getTargetPackage() +
-                fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config));
+        return config.getTargetPackage()
+                + fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config));
     }
 
     protected void calculateModelAttributes() {
@@ -732,7 +768,6 @@ public abstract class IntrospectedTable {
         sb.append(pakkage);
         sb.append('.');
         sb.append(fullyQualifiedTable.getDomainObjectName());
-        sb.append("Record"); //$NON-NLS-1$
         setKotlinRecordType(sb.toString());
 
         sb.setLength(0);
@@ -764,8 +799,8 @@ public abstract class IntrospectedTable {
             return calculateJavaModelPackage();
         }
 
-        return exampleTargetPackage +
-                fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config));
+        return exampleTargetPackage
+                + fullyQualifiedTable.getSubPackageForModel(isSubPackagesEnabled(config));
     }
 
     protected String calculateSqlMapPackage() {
@@ -882,7 +917,7 @@ public abstract class IntrospectedTable {
 
     /**
      * This method should return the number of progress messages that will be
-     * send during the generation phase.
+     * sent during the generation phase.
      *
      * @return the number of progress messages
      */
